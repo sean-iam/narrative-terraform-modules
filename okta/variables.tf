@@ -472,3 +472,31 @@ variable "custom_domain" {
   type        = string
   default     = null
 }
+
+# -----------------------------------------------------------------------------
+# Event Hooks Module Overrides
+# -----------------------------------------------------------------------------
+
+variable "enable_security_event_hook" {
+  description = "Enable the security event monitoring hook — overrides risk_profile default"
+  type        = bool
+  default     = null
+}
+
+variable "enable_admin_activity_hook" {
+  description = "Enable the admin activity monitoring hook — overrides risk_profile default"
+  type        = bool
+  default     = null
+}
+
+variable "security_hook_endpoint" {
+  description = "HTTPS endpoint URL for security event hook"
+  type        = string
+  default     = null
+}
+
+variable "admin_hook_endpoint" {
+  description = "HTTPS endpoint URL for admin activity hook"
+  type        = string
+  default     = null
+}

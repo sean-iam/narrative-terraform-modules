@@ -1,0 +1,52 @@
+{
+  "module": "event-hooks",
+  "description": "Creates Okta event hooks for real-time security monitoring and admin activity auditing. Hooks forward events to HTTPS endpoints (e.g., SIEM, webhook relay, serverless function). Both hooks are conditional on the risk profile and a valid endpoint URL.",
+  "risk_profile_effects": {
+    "standard": "No event hooks enabled by default.",
+    "elevated": "Security event hook enabled (if endpoint provided). Admin activity hook disabled.",
+    "strict": "Both security event and admin activity hooks enabled (if endpoints provided)."
+  },
+  "variables": {
+    "risk_profile": {
+      "client_description": "Your organization's security tier. Standard disables all hooks by default, Elevated enables security event monitoring, Strict enables both security and admin activity monitoring.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"]
+    },
+    "enable_security_event_hook": {
+      "client_description": "Whether to create a security event hook that monitors account lockouts, new sessions, MFA changes, policy updates, and membership changes. The hook also requires a valid endpoint URL. Overrides the risk_profile default.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile"
+    },
+    "enable_admin_activity_hook": {
+      "client_description": "Whether to create an admin activity hook that monitors policy, application, and group lifecycle changes (create/update/delete). Provides an audit trail for all administrative actions. Overrides the risk_profile default.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile"
+    },
+    "security_hook_endpoint": {
+      "client_description": "The HTTPS URL where security events will be sent. This could be a SIEM webhook endpoint (e.g., Splunk HEC, Datadog), a serverless function (e.g., AWS Lambda URL), or a webhook relay service. Must be HTTPS. Required for the security hook to be created.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "examples": ["https://siem.example.com/api/okta-events", "https://hooks.zapier.com/hooks/catch/12345"]
+    },
+    "admin_hook_endpoint": {
+      "client_description": "The HTTPS URL where admin activity events will be sent. Can be the same as or different from the security hook endpoint. Required for the admin activity hook to be created.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "examples": ["https://siem.example.com/api/okta-admin", "https://hooks.zapier.com/hooks/catch/67890"]
+    }
+  },
+  "outputs": {
+    "security_hook_id": "Security event hook ID (null if not created)",
+    "admin_activity_hook_id": "Admin activity hook ID (null if not created)",
+    "security_hook_enabled": "Whether the security event hook is active",
+    "admin_activity_hook_enabled": "Whether the admin activity hook is active"
+  }
+}

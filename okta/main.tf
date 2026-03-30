@@ -128,3 +128,13 @@ module "branding" {
   enable_security_notifications = var.enable_security_notifications
   custom_domain                 = var.custom_domain
 }
+
+module "event_hooks" {
+  source       = "./modules/event-hooks"
+  risk_profile = var.risk_profile
+
+  enable_security_event_hook = var.enable_security_event_hook
+  enable_admin_activity_hook = var.enable_admin_activity_hook
+  security_hook_endpoint     = var.security_hook_endpoint
+  admin_hook_endpoint        = var.admin_hook_endpoint
+}
