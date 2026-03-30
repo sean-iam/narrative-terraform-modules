@@ -279,3 +279,31 @@ variable "threat_insight_action" {
   type        = string
   default     = "block"
 }
+
+# -----------------------------------------------------------------------------
+# Behaviors Module Overrides
+# -----------------------------------------------------------------------------
+
+variable "velocity_threshold_kmh" {
+  description = "Impossible travel velocity threshold in km/h"
+  type        = number
+  default     = 805
+}
+
+variable "impossible_travel_action" {
+  description = "Action for impossible travel events — overrides risk_profile default"
+  type        = string
+  default     = null
+}
+
+variable "new_device_action" {
+  description = "Action for new device events — overrides risk_profile default"
+  type        = string
+  default     = null
+}
+
+variable "new_city_action" {
+  description = "Action for new city events — overrides risk_profile default"
+  type        = string
+  default     = null
+}

@@ -75,3 +75,13 @@ module "policies_signon" {
   contractor_idle_timeout_minutes = var.contractor_idle_timeout_minutes
   break_glass_max_session_minutes = var.break_glass_max_session_minutes
 }
+
+module "behaviors" {
+  source       = "./modules/behaviors"
+  risk_profile = var.risk_profile
+
+  velocity_threshold_kmh   = var.velocity_threshold_kmh
+  impossible_travel_action = var.impossible_travel_action
+  new_device_action        = var.new_device_action
+  new_city_action          = var.new_city_action
+}
