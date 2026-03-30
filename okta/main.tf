@@ -85,3 +85,12 @@ module "behaviors" {
   new_device_action        = var.new_device_action
   new_city_action          = var.new_city_action
 }
+
+module "apps" {
+  source = "./modules/apps"
+
+  oidc_apps     = var.oidc_apps
+  saml_apps     = var.saml_apps
+  service_apps  = var.service_apps
+  bookmark_apps = var.bookmark_apps
+}

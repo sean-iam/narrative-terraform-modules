@@ -1,0 +1,78 @@
+{
+  "module": "apps",
+  "description": "Template-driven application provisioning for OIDC, SAML, service (M2M), and bookmark applications. Applications are defined as lists of objects — no risk profile needed.",
+  "risk_profile_effects": {
+    "standard": "No risk-profile-driven behavior — apps are template-driven.",
+    "elevated": "No risk-profile-driven behavior — apps are template-driven.",
+    "strict": "No risk-profile-driven behavior — apps are template-driven."
+  },
+  "variables": {
+    "oidc_apps": {
+      "client_description": "List of OIDC web applications to register in Okta. Each entry creates an OAuth 2.0 app with redirect URIs for your web application. Provide the app label, redirect URIs, and optionally customize grant types and token endpoint authentication method.",
+      "type": "list(object)",
+      "default": [],
+      "required": false,
+      "examples": [
+        [
+          {
+            "label": "Customer Portal",
+            "redirect_uris": ["https://portal.example.com/callback"],
+            "post_logout_redirect_uris": ["https://portal.example.com/logout"]
+          }
+        ]
+      ]
+    },
+    "saml_apps": {
+      "client_description": "List of SAML service provider applications. Each entry creates a SAML app integration with the specified SSO URL, recipient, destination, and audience. Obtain these values from your SAML SP's metadata.",
+      "type": "list(object)",
+      "default": [],
+      "required": false,
+      "examples": [
+        [
+          {
+            "label": "Salesforce",
+            "sso_url": "https://login.salesforce.com",
+            "recipient": "https://login.salesforce.com",
+            "destination": "https://login.salesforce.com",
+            "audience": "https://saml.salesforce.com"
+          }
+        ]
+      ]
+    },
+    "service_apps": {
+      "client_description": "List of OAuth2 service (machine-to-machine) applications. These use client_credentials grant for API-to-API communication without user context. Commonly used for background jobs, CI/CD pipelines, and microservice integration.",
+      "type": "list(object)",
+      "default": [],
+      "required": false,
+      "examples": [
+        [
+          { "label": "CI/CD Pipeline" },
+          { "label": "Data Sync Service" }
+        ]
+      ]
+    },
+    "bookmark_apps": {
+      "client_description": "List of bookmark applications that appear in the Okta portal as clickable links. No SSO — these are convenience links to external resources, documentation, or tools that don't support federated login.",
+      "type": "list(object)",
+      "default": [],
+      "required": false,
+      "examples": [
+        [
+          { "label": "Company Wiki", "url": "https://wiki.example.com" },
+          { "label": "Expense Portal", "url": "https://expense.example.com" }
+        ]
+      ]
+    }
+  },
+  "outputs": {
+    "oidc_app_ids": "Map of OIDC app label to Okta app ID",
+    "oidc_client_ids": "Map of OIDC app label to OAuth client ID",
+    "oidc_client_secrets": "Map of OIDC app label to OAuth client secret (sensitive)",
+    "saml_app_ids": "Map of SAML app label to Okta app ID",
+    "service_app_ids": "Map of service app label to Okta app ID",
+    "service_client_ids": "Map of service app label to OAuth client ID",
+    "service_client_secrets": "Map of service app label to OAuth client secret (sensitive)",
+    "bookmark_app_ids": "Map of bookmark app label to Okta app ID",
+    "all_app_ids": "Combined map of all app labels to Okta app IDs"
+  }
+}
