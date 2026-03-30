@@ -398,3 +398,49 @@ variable "service_token_lifetime_minutes" {
   type        = number
   default     = null
 }
+
+# -----------------------------------------------------------------------------
+# User Schema Module Variables
+# -----------------------------------------------------------------------------
+
+variable "enable_employee_id" {
+  description = "Create the employee_id custom profile attribute"
+  type        = bool
+  default     = true
+}
+
+variable "enable_manager_email" {
+  description = "Create the manager_email custom profile attribute"
+  type        = bool
+  default     = true
+}
+
+variable "enable_start_date" {
+  description = "Create the start_date custom profile attribute"
+  type        = bool
+  default     = true
+}
+
+variable "enable_end_date" {
+  description = "Create the end_date custom profile attribute"
+  type        = bool
+  default     = true
+}
+
+variable "enable_office_location" {
+  description = "Create the office_location custom profile attribute"
+  type        = bool
+  default     = true
+}
+
+variable "enable_risk_level" {
+  description = "Create the risk_level custom profile attribute"
+  type        = bool
+  default     = true
+}
+
+variable "enable_last_access_review_date" {
+  description = "Create the last_access_review_date custom profile attribute"
+  type        = bool
+  default     = true
+}

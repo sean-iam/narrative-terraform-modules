@@ -107,3 +107,15 @@ module "auth_server" {
   refresh_token_lifetime_days    = var.refresh_token_lifetime_days
   service_token_lifetime_minutes = var.service_token_lifetime_minutes
 }
+
+module "user_schema" {
+  source = "./modules/user-schema"
+
+  enable_employee_id             = var.enable_employee_id
+  enable_manager_email           = var.enable_manager_email
+  enable_start_date              = var.enable_start_date
+  enable_end_date                = var.enable_end_date
+  enable_office_location         = var.enable_office_location
+  enable_risk_level              = var.enable_risk_level
+  enable_last_access_review_date = var.enable_last_access_review_date
+}

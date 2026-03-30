@@ -1,0 +1,63 @@
+{
+  "module": "user-schema",
+  "description": "Creates custom Okta user profile attributes for identity lifecycle management and access governance. All attributes are sourced from the HR system (PROFILE_MASTER) and set to read-only.",
+  "risk_profile_effects": {
+    "standard": "No risk-profile-driven behavior — all attributes are the same across profiles.",
+    "elevated": "No risk-profile-driven behavior — all attributes are the same across profiles.",
+    "strict": "No risk-profile-driven behavior — all attributes are the same across profiles."
+  },
+  "variables": {
+    "enable_employee_id": {
+      "client_description": "Whether to create the employee_id custom attribute. This is a unique identifier synced from your HR system, used for cross-system user correlation. Disable only if you already have an employee ID attribute configured outside Terraform.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_manager_email": {
+      "client_description": "Whether to create the manager_email custom attribute. Stores the direct manager's email for approval workflows and org hierarchy reporting.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_start_date": {
+      "client_description": "Whether to create the start_date custom attribute. Used for onboarding automation — pre-provisioning access before a user's first day.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_end_date": {
+      "client_description": "Whether to create the end_date custom attribute. Used for offboarding automation — scheduling deprovisioning when an employee leaves.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_office_location": {
+      "client_description": "Whether to create the office_location custom attribute. Stores the physical office location for location-based access policies and compliance reporting.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_risk_level": {
+      "client_description": "Whether to create the risk_level custom attribute. An enum (low/medium/high/critical) used to drive adaptive access policies — high-risk users can receive stricter authentication requirements.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_last_access_review_date": {
+      "client_description": "Whether to create the last_access_review_date custom attribute. Tracks when a user's access was last certified, supporting compliance audit requirements (SOX, SOC 2, etc.).",
+      "type": "bool",
+      "default": true,
+      "required": false
+    }
+  },
+  "outputs": {
+    "employee_id_index": "Schema property index for employee_id (null if disabled)",
+    "manager_email_index": "Schema property index for manager_email (null if disabled)",
+    "start_date_index": "Schema property index for start_date (null if disabled)",
+    "end_date_index": "Schema property index for end_date (null if disabled)",
+    "office_location_index": "Schema property index for office_location (null if disabled)",
+    "risk_level_index": "Schema property index for risk_level (null if disabled)",
+    "last_access_review_date_index": "Schema property index for last_access_review_date (null if disabled)",
+    "all_enabled_attributes": "List of enabled custom attribute names"
+  }
+}
