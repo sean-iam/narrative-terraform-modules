@@ -1,0 +1,19 @@
+{
+  "ofac_countries": ["KP", "IR", "CU", "SY"],
+  "ofac_country_names": {
+    "KP": "North Korea",
+    "IR": "Iran",
+    "CU": "Cuba",
+    "SY": "Syria"
+  },
+  "ofac_notes": "Based on OFAC SDN program. RU is optional — include if client wants to block Russia due to occupied UA regions. Review quarterly against https://ofac.treasury.gov/sanctions-programs-and-country-information.",
+  "high_risk_default": ["RU", "CN", "BY", "VE", "MM"],
+  "high_risk_country_names": {
+    "RU": "Russia",
+    "CN": "China",
+    "BY": "Belarus",
+    "VE": "Venezuela",
+    "MM": "Myanmar"
+  },
+  "high_risk_notes": "Default suggestion for elevated/strict tiers. Client can customize. Based on CISA threat intelligence."
+}
