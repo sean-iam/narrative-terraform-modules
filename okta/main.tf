@@ -43,11 +43,28 @@ module "policies_password" {
   enable_lockout_admin_notification = var.enable_lockout_admin_notification
 }
 
+module "network" {
+  source       = "./modules/network"
+  risk_profile = var.risk_profile
+
+  trusted_cidrs                   = var.trusted_cidrs
+  geo_exception_ofac_group_id     = module.groups.geo_exception_ofac_id
+  geo_exception_non_ofac_group_id = module.groups.geo_exception_non_ofac_id
+
+  ofac_countries            = var.ofac_countries
+  enable_high_risk_blocking = var.enable_high_risk_blocking
+  high_risk_countries       = var.high_risk_countries
+  geo_mode                  = var.geo_mode
+  allowlist_countries       = var.allowlist_countries
+  enable_tor_blocking       = var.enable_tor_blocking
+  threat_insight_action     = var.threat_insight_action
+}
+
 module "policies_signon" {
   source          = "./modules/policies-signon"
   risk_profile    = var.risk_profile
   group_ids       = module.groups.all_group_ids
-  trusted_zone_id = null # Will be wired to network module output later
+  trusted_zone_id = module.network.trusted_zone_id
 
   employee_idle_timeout_minutes   = var.employee_idle_timeout_minutes
   admin_idle_timeout_minutes      = var.admin_idle_timeout_minutes

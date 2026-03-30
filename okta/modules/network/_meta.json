@@ -1,0 +1,97 @@
+{
+  "module": "network",
+  "description": "Creates Okta network zones for trusted IPs, OFAC geo-blocking, high-risk country blocking, and Tor/anonymizer blocking. Configures ThreatInsight to block suspicious IPs with trusted networks exempted.",
+  "risk_profile_effects": {
+    "standard": "Trusted zone and OFAC blocklist always created. High-risk country blocking and Tor blocking disabled.",
+    "elevated": "All zones created. High-risk country blocking and Tor blocking enabled. Geo mode is blocklist (specific countries blocked).",
+    "strict": "All zones created. Geo mode flips to allowlist — only explicitly approved countries can authenticate."
+  },
+  "variables": {
+    "risk_profile": {
+      "client_description": "Your organization's security tier. Controls which geo-blocking zones are created and whether Tor blocking is enabled.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"]
+    },
+    "trusted_cidrs": {
+      "client_description": "Your office IP addresses and VPN exit points. Used to relax MFA for on-premises users and restrict admin/service account access.",
+      "type": "list(string)",
+      "default": [],
+      "required": false,
+      "examples": [
+        ["203.0.113.0/24", "198.51.100.10/32"],
+        ["10.10.0.0/16"]
+      ]
+    },
+    "ofac_countries": {
+      "client_description": "Countries under OFAC sanctions. Authentication from these countries is blocked. Current list: North Korea, Iran, Cuba, Syria.",
+      "type": "list(string)",
+      "default": ["KP", "IR", "CU", "SY"],
+      "required": false
+    },
+    "enable_high_risk_blocking": {
+      "client_description": "Block authentication from high-risk countries. Enabled automatically for Elevated and Strict profiles. Set to true to enable for Standard.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile"
+    },
+    "high_risk_countries": {
+      "client_description": "Countries considered high-risk. Blocked when enable_high_risk_blocking is true. Defaults to Russia, China, Belarus, Venezuela, Myanmar.",
+      "type": "list(string)",
+      "default": ["RU", "CN", "BY", "VE", "MM"],
+      "required": false
+    },
+    "geo_mode": {
+      "client_description": "Standard and Elevated block specific countries. Strict mode flips to allowlist-only — only countries you explicitly approve are allowed.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["blocklist", "allowlist"]
+    },
+    "allowlist_countries": {
+      "client_description": "Countries to allow when running in strict (allowlist) mode. Only used when geo_mode is allowlist. Provide ISO 3166-1 alpha-2 country codes.",
+      "type": "list(string)",
+      "default": [],
+      "required": false,
+      "examples": [
+        ["US", "CA", "GB", "DE", "AU"],
+        ["US"]
+      ]
+    },
+    "enable_tor_blocking": {
+      "client_description": "Block Tor exit nodes and anonymous proxy services. Enabled automatically for Elevated and Strict profiles. Prevents evasion of geo-blocking controls.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile"
+    },
+    "geo_exception_ofac_group_id": {
+      "client_description": "Two exception groups allow specific users to authenticate from blocked countries. OFAC exceptions require documented business justification and quarterly review.",
+      "type": "string",
+      "default": null,
+      "required": false
+    },
+    "geo_exception_non_ofac_group_id": {
+      "client_description": "Group for users exempt from non-OFAC geo-blocking (e.g., traveling employees). Time-bound membership recommended. Wired from the groups module.",
+      "type": "string",
+      "default": null,
+      "required": false
+    },
+    "threat_insight_action": {
+      "client_description": "How Okta ThreatInsight responds to suspicious IPs. 'block' prevents sign-in attempts. 'audit' logs them but allows. 'none' disables ThreatInsight entirely.",
+      "type": "string",
+      "default": "block",
+      "required": false,
+      "allowed_values": ["none", "audit", "block"]
+    }
+  },
+  "outputs": {
+    "trusted_zone_id": "Network zone ID for trusted CIDRs — wired to sign-on policy rules",
+    "ofac_zone_id": "OFAC blocklist zone ID",
+    "high_risk_zone_id": "High-risk country blocklist zone ID (null if disabled)",
+    "tor_zone_id": "Tor/anonymizer blocklist zone ID (null if disabled)"
+  }
+}

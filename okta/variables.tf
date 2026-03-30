@@ -227,3 +227,55 @@ variable "break_glass_max_session_minutes" {
   type        = number
   default     = null
 }
+
+# -----------------------------------------------------------------------------
+# Network Module Overrides
+# -----------------------------------------------------------------------------
+
+variable "trusted_cidrs" {
+  description = "Trusted IP CIDRs (office networks, VPN endpoints) — used to relax MFA for on-premises users and restrict admin/service account access"
+  type        = list(string)
+  default     = []
+}
+
+variable "ofac_countries" {
+  description = "Countries under OFAC sanctions to block — overrides network module default [KP, IR, CU, SY]"
+  type        = list(string)
+  default     = ["KP", "IR", "CU", "SY"]
+}
+
+variable "enable_high_risk_blocking" {
+  description = "Block authentication from high-risk countries — overrides risk_profile default (enabled for elevated/strict)"
+  type        = bool
+  default     = null
+}
+
+variable "high_risk_countries" {
+  description = "Countries considered high-risk when enable_high_risk_blocking is true — overrides network module default [RU, CN, BY, VE, MM]"
+  type        = list(string)
+  default     = ["RU", "CN", "BY", "VE", "MM"]
+}
+
+variable "geo_mode" {
+  description = "Geo-blocking mode — blocklist blocks specific countries, allowlist allows only approved countries (strict mode default)"
+  type        = string
+  default     = null
+}
+
+variable "allowlist_countries" {
+  description = "Countries to allow in allowlist (strict) mode — only used when geo_mode is allowlist"
+  type        = list(string)
+  default     = []
+}
+
+variable "enable_tor_blocking" {
+  description = "Block Tor exit nodes and anonymous proxies — overrides risk_profile default (enabled for elevated/strict)"
+  type        = bool
+  default     = null
+}
+
+variable "threat_insight_action" {
+  description = "Okta ThreatInsight response to suspicious IPs — none, audit, or block"
+  type        = string
+  default     = "block"
+}
