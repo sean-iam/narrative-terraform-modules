@@ -175,3 +175,55 @@ variable "enable_lockout_admin_notification" {
   type        = bool
   default     = null
 }
+
+# -----------------------------------------------------------------------------
+# Sign-On Policies Module Overrides
+# -----------------------------------------------------------------------------
+
+variable "employee_idle_timeout_minutes" {
+  description = "Idle session timeout in minutes for employee accounts — overrides risk_profile default"
+  type        = number
+  default     = null
+}
+
+variable "admin_idle_timeout_minutes" {
+  description = "Idle session timeout in minutes for administrator accounts — overrides risk_profile default"
+  type        = number
+  default     = null
+}
+
+variable "max_session_lifetime_minutes" {
+  description = "Maximum session lifetime in minutes before forced re-authentication — overrides risk_profile default"
+  type        = number
+  default     = null
+}
+
+variable "mfa_prompt_mode" {
+  description = "MFA prompt behavior for employees — DEVICE, SESSION, or ALWAYS — overrides risk_profile default"
+  type        = string
+  default     = null
+}
+
+variable "mfa_remember_device" {
+  description = "Allow employees to register trusted devices to skip MFA prompts — overrides risk_profile default"
+  type        = bool
+  default     = null
+}
+
+variable "mfa_lifetime_minutes" {
+  description = "How long a remembered employee device stays trusted in minutes (0 = every session) — overrides risk_profile default"
+  type        = number
+  default     = null
+}
+
+variable "contractor_idle_timeout_minutes" {
+  description = "Idle session timeout in minutes for contractor accounts — overrides risk_profile default"
+  type        = number
+  default     = null
+}
+
+variable "break_glass_max_session_minutes" {
+  description = "Maximum session lifetime in minutes for break glass emergency accounts — overrides risk_profile default"
+  type        = number
+  default     = null
+}

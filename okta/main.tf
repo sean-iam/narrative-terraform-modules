@@ -42,3 +42,19 @@ module "policies_password" {
   admin_password_max_age_days       = var.admin_password_max_age_days
   enable_lockout_admin_notification = var.enable_lockout_admin_notification
 }
+
+module "policies_signon" {
+  source          = "./modules/policies-signon"
+  risk_profile    = var.risk_profile
+  group_ids       = module.groups.all_group_ids
+  trusted_zone_id = null # Will be wired to network module output later
+
+  employee_idle_timeout_minutes   = var.employee_idle_timeout_minutes
+  admin_idle_timeout_minutes      = var.admin_idle_timeout_minutes
+  max_session_lifetime_minutes    = var.max_session_lifetime_minutes
+  mfa_prompt_mode                 = var.mfa_prompt_mode
+  mfa_remember_device             = var.mfa_remember_device
+  mfa_lifetime_minutes            = var.mfa_lifetime_minutes
+  contractor_idle_timeout_minutes = var.contractor_idle_timeout_minutes
+  break_glass_max_session_minutes = var.break_glass_max_session_minutes
+}
