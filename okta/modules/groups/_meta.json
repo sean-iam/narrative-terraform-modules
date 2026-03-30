@@ -1,0 +1,84 @@
+{
+  "module": "groups",
+  "description": "Creates Okta groups for admin roles, functional teams, departments, geo-exceptions, and custom purposes. Assigns built-in admin roles to admin groups and sets up auto-assignment rules for dynamic membership.",
+  "risk_profile_effects": {
+    "standard": "All department groups enabled by default.",
+    "elevated": "All department groups enabled by default.",
+    "strict": "All department groups enabled by default."
+  },
+  "variables": {
+    "risk_profile": {
+      "client_description": "Your organization's security tier. Controls default behavior for department group creation. Most clients use 'standard' — choose 'elevated' or 'strict' if you operate in a regulated industry or handle sensitive data.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"]
+    },
+    "org_display_name": {
+      "client_description": "Your organization's display name. Used in group descriptions for clarity in the Okta admin console.",
+      "type": "string",
+      "required": true
+    },
+    "enable_department_groups": {
+      "client_description": "Whether to create department-based groups with automatic assignment rules. When enabled, each department in your list gets its own Okta group, and users are automatically added based on their department attribute. Set to false if you manage department groups outside of Terraform or through a different mechanism.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile"
+    },
+    "departments": {
+      "client_description": "The list of departments in your organization. Each department gets an Okta group (e.g., 'Dept - Engineering') and an auto-assignment rule that adds users whose department attribute matches. Add or remove departments to match your org structure.",
+      "type": "list(string)",
+      "default": ["Engineering", "Finance", "Human Resources", "IT Operations", "Sales", "Customer Support", "Legal & Compliance"],
+      "required": false,
+      "examples": [
+        ["Engineering", "Product", "Design", "Sales", "Marketing", "Finance", "Legal", "HR", "IT"],
+        ["Technology", "Operations", "Commercial"]
+      ]
+    },
+    "enable_contractor_group": {
+      "client_description": "Whether to create a 'Contractors' group with an auto-assignment rule for users whose userType is 'Contractor'. Enable this if your organization uses Okta for contractor identity management.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_executive_group": {
+      "client_description": "Whether to create an 'Executive Leadership' group for C-suite and VP-level users. This group is typically targeted by enhanced authentication policies (e.g., phishing-resistant MFA).",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_geo_exception_groups": {
+      "client_description": "Whether to create geo-blocking exception groups. Creates two groups: one for OFAC-country exceptions (requires documented business justification) and one for non-OFAC exceptions (e.g., traveling employees). Used by the network/zone policies module to exempt specific users from geographic access restrictions.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "custom_groups": {
+      "client_description": "Any additional Okta groups your organization needs beyond the standard set. Provide a name and description for each. Useful for project teams, temporary initiatives, or organization-specific groupings not covered by the built-in groups.",
+      "type": "list(object({name=string, description=string}))",
+      "default": [],
+      "required": false,
+      "examples": [
+        [
+          { "name": "Project Alpha", "description": "Cross-functional team for Project Alpha initiative" },
+          { "name": "Remote Workers", "description": "Employees approved for permanent remote work" }
+        ]
+      ]
+    }
+  },
+  "outputs": {
+    "super_admins_id": "Group ID for the Super Admins group",
+    "all_employees_id": "Group ID for the All Employees group",
+    "contractors_id": "Group ID for the Contractors group (null if disabled)",
+    "break_glass_id": "Group ID for the Break Glass emergency access group",
+    "service_accounts_id": "Group ID for the Service Accounts group",
+    "privileged_access_id": "Group ID for the Privileged Access (JIT) group",
+    "executive_leadership_id": "Group ID for the Executive Leadership group (null if disabled)",
+    "geo_exception_ofac_id": "Group ID for OFAC geo-exception group (null if disabled)",
+    "geo_exception_non_ofac_id": "Group ID for non-OFAC geo-exception group (null if disabled)",
+    "department_group_ids": "Map of department name to Okta group ID",
+    "admin_group_ids": "Map of admin role name to Okta group ID",
+    "all_group_ids": "Combined map of all group names to Okta group IDs"
+  }
+}

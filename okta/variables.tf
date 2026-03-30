@@ -52,3 +52,46 @@ variable "risk_profile" {
     error_message = "Must be standard, elevated, or strict."
   }
 }
+
+# -----------------------------------------------------------------------------
+# Groups Module Overrides
+# -----------------------------------------------------------------------------
+
+variable "enable_department_groups" {
+  description = "Create department-based groups with auto-assignment rules"
+  type        = bool
+  default     = null
+}
+
+variable "departments" {
+  description = "List of departments to create groups for"
+  type        = list(string)
+  default     = ["Engineering", "Finance", "Human Resources", "IT Operations", "Sales", "Customer Support", "Legal & Compliance"]
+}
+
+variable "enable_contractor_group" {
+  description = "Create a contractors group"
+  type        = bool
+  default     = true
+}
+
+variable "enable_executive_group" {
+  description = "Create an executive leadership group"
+  type        = bool
+  default     = true
+}
+
+variable "enable_geo_exception_groups" {
+  description = "Create geo-blocking exception groups"
+  type        = bool
+  default     = true
+}
+
+variable "custom_groups" {
+  description = "Additional custom groups"
+  type = list(object({
+    name        = string
+    description = string
+  }))
+  default = []
+}
