@@ -358,3 +358,43 @@ variable "bookmark_apps" {
   }))
   default = []
 }
+
+# -----------------------------------------------------------------------------
+# Auth Server Module Overrides
+# -----------------------------------------------------------------------------
+
+variable "auth_server_name" {
+  description = "Name for the custom authorization server"
+  type        = string
+  default     = "custom"
+}
+
+variable "auth_server_description" {
+  description = "Description for the custom authorization server"
+  type        = string
+  default     = "Custom authorization server"
+}
+
+variable "auth_server_scopes" {
+  description = "Custom scopes to create on the authorization server"
+  type        = list(string)
+  default     = ["read", "write", "admin"]
+}
+
+variable "access_token_lifetime_minutes" {
+  description = "Access token lifetime in minutes — overrides risk_profile default"
+  type        = number
+  default     = null
+}
+
+variable "refresh_token_lifetime_days" {
+  description = "Refresh token lifetime in days — overrides risk_profile default"
+  type        = number
+  default     = null
+}
+
+variable "service_token_lifetime_minutes" {
+  description = "Service-to-service token lifetime in minutes — overrides risk_profile default"
+  type        = number
+  default     = null
+}

@@ -94,3 +94,16 @@ module "apps" {
   service_apps  = var.service_apps
   bookmark_apps = var.bookmark_apps
 }
+
+module "auth_server" {
+  source       = "./modules/auth-server"
+  risk_profile = var.risk_profile
+  group_ids    = module.groups.all_group_ids
+
+  auth_server_name               = var.auth_server_name
+  auth_server_description        = var.auth_server_description
+  scopes                         = var.auth_server_scopes
+  access_token_lifetime_minutes  = var.access_token_lifetime_minutes
+  refresh_token_lifetime_days    = var.refresh_token_lifetime_days
+  service_token_lifetime_minutes = var.service_token_lifetime_minutes
+}
