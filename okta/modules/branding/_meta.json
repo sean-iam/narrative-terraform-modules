@@ -1,0 +1,41 @@
+{
+  "module": "branding",
+  "description": "Configures Okta branding (theme colors) and security notification emails. Theme resources are commented out pending branding API availability — security notification emails are always deployable.",
+  "risk_profile_effects": {
+    "standard": "No risk-profile-driven behavior — branding is cosmetic and notifications are boolean.",
+    "elevated": "No risk-profile-driven behavior — branding is cosmetic and notifications are boolean.",
+    "strict": "No risk-profile-driven behavior — branding is cosmetic and notifications are boolean."
+  },
+  "variables": {
+    "primary_color": {
+      "client_description": "Your brand's primary color (hex code). Applied to the Okta sign-in page background, buttons, and headers. Must include the '#' prefix.",
+      "type": "string",
+      "default": "#1a1a2e",
+      "required": false,
+      "examples": ["#1a1a2e", "#003366", "#2d2d2d"]
+    },
+    "secondary_color": {
+      "client_description": "Your brand's secondary/accent color (hex code). Applied to links, highlights, and interactive elements on the Okta sign-in page.",
+      "type": "string",
+      "default": "#38bdf8",
+      "required": false,
+      "examples": ["#38bdf8", "#0066cc", "#ff6600"]
+    },
+    "enable_security_notifications": {
+      "client_description": "Whether to enable Okta's built-in security notification emails. When enabled, users receive emails for new device logins, MFA enrollment/reset, password changes, and can report suspicious activity. Strongly recommended — disable only if you have an external notification system.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "custom_domain": {
+      "client_description": "A custom domain for your Okta sign-in page (e.g., 'login.yourcompany.com'). Requires DNS CNAME configuration. Leave null to use the default Okta domain.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "examples": ["login.example.com", "sso.company.io"]
+    }
+  },
+  "outputs": {
+    "security_notifications_enabled": "Whether security notification emails are enabled"
+  }
+}

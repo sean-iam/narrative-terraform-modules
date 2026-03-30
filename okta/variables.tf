@@ -444,3 +444,31 @@ variable "enable_last_access_review_date" {
   type        = bool
   default     = true
 }
+
+# -----------------------------------------------------------------------------
+# Branding Module Variables
+# -----------------------------------------------------------------------------
+
+variable "primary_color" {
+  description = "Primary brand color hex code for the Okta sign-in page"
+  type        = string
+  default     = "#1a1a2e"
+}
+
+variable "secondary_color" {
+  description = "Secondary/link color hex code for the Okta sign-in page"
+  type        = string
+  default     = "#38bdf8"
+}
+
+variable "enable_security_notifications" {
+  description = "Enable Okta security notification emails"
+  type        = bool
+  default     = true
+}
+
+variable "custom_domain" {
+  description = "Custom domain for Okta sign-in page (e.g., login.example.com)"
+  type        = string
+  default     = null
+}

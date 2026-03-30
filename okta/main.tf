@@ -119,3 +119,12 @@ module "user_schema" {
   enable_risk_level              = var.enable_risk_level
   enable_last_access_review_date = var.enable_last_access_review_date
 }
+
+module "branding" {
+  source = "./modules/branding"
+
+  primary_color                 = var.primary_color
+  secondary_color               = var.secondary_color
+  enable_security_notifications = var.enable_security_notifications
+  custom_domain                 = var.custom_domain
+}
