@@ -123,3 +123,55 @@ variable "email_token_lifetime_minutes" {
   type        = number
   default     = 5
 }
+
+# -----------------------------------------------------------------------------
+# Password Policies Module Overrides
+# -----------------------------------------------------------------------------
+
+variable "password_min_length" {
+  description = "Minimum password length for end users — overrides risk_profile default"
+  type        = number
+  default     = null
+}
+
+variable "password_max_age_days" {
+  description = "Maximum password age in days for end users before rotation is required (0 to disable)"
+  type        = number
+  default     = null
+}
+
+variable "password_history_count" {
+  description = "Number of previous passwords users cannot reuse — overrides risk_profile default"
+  type        = number
+  default     = null
+}
+
+variable "password_lockout_attempts" {
+  description = "Failed login attempts before account lockout — overrides risk_profile default"
+  type        = number
+  default     = null
+}
+
+variable "password_lockout_duration_minutes" {
+  description = "Minutes before a locked account auto-unlocks — overrides risk_profile default"
+  type        = number
+  default     = null
+}
+
+variable "admin_password_min_length" {
+  description = "Minimum password length for administrator accounts — overrides risk_profile default"
+  type        = number
+  default     = null
+}
+
+variable "admin_password_max_age_days" {
+  description = "Maximum password age in days for admin accounts before rotation is required (0 to disable)"
+  type        = number
+  default     = null
+}
+
+variable "enable_lockout_admin_notification" {
+  description = "Send admin notification on account lockout — overrides risk_profile default"
+  type        = bool
+  default     = null
+}
