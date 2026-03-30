@@ -95,3 +95,31 @@ variable "custom_groups" {
   }))
   default = []
 }
+
+# -----------------------------------------------------------------------------
+# Authenticators Module Overrides
+# -----------------------------------------------------------------------------
+
+variable "mfa_method" {
+  description = "Primary MFA method — overrides risk_profile default"
+  type        = string
+  default     = null
+}
+
+variable "enable_webauthn" {
+  description = "Enable WebAuthn/FIDO2"
+  type        = bool
+  default     = null
+}
+
+variable "enable_email_recovery" {
+  description = "Enable email recovery"
+  type        = bool
+  default     = true
+}
+
+variable "email_token_lifetime_minutes" {
+  description = "Email token lifetime"
+  type        = number
+  default     = 5
+}

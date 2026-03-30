@@ -17,3 +17,13 @@ module "groups" {
   enable_geo_exception_groups  = var.enable_geo_exception_groups
   custom_groups                = var.custom_groups
 }
+
+module "authenticators" {
+  source       = "./modules/authenticators"
+  risk_profile = var.risk_profile
+
+  mfa_method                   = var.mfa_method
+  enable_webauthn              = var.enable_webauthn
+  enable_email_recovery        = var.enable_email_recovery
+  email_token_lifetime_minutes = var.email_token_lifetime_minutes
+}

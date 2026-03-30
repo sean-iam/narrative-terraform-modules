@@ -1,0 +1,28 @@
+{
+  "module": "authenticators",
+  "description": "Configures MFA methods and enrollment based on risk profile. Implements defense-in-depth: Standard uses convenient push notifications, Elevated adds number challenge to block MFA fatigue attacks, Strict enforces phishing-proof hardware keys.",
+  "variables": {
+    "risk_profile": {
+      "client_description": "Your security tier. Standard works for most companies. Elevated adds protections against MFA fatigue attacks (where hackers spam approval requests). Strict requires physical security keys — best for high-value targets like finance or executive teams."
+    },
+    "mfa_method": {
+      "client_description": "Override the MFA method set by your risk profile. Options: 'okta_verify_push' — User taps 'Approve' on their phone. Convenient but can be vulnerable to MFA fatigue attacks where attackers spam approval requests. 'okta_verify_number' — User types a matching number from screen into their phone. Prevents MFA fatigue attacks. 'webauthn_fido2' — User taps a physical security key. Completely phishing-proof. Requires hardware keys (~$25-50 each) for all users. Leave blank to use your risk profile default."
+    },
+    "enable_webauthn": {
+      "client_description": "Enable hardware security key support. Required for Elevated and Strict profiles. Standard-only orgs can skip this. If enabled, users can register YubiKeys, Touch ID, or Windows Hello as a second factor."
+    },
+    "enable_email_recovery": {
+      "client_description": "Allow users to recover their account via email. Recommended for all profiles. Disabling this makes account recovery significantly harder and increases IT helpdesk load."
+    },
+    "email_token_lifetime_minutes": {
+      "client_description": "How long an email recovery link stays valid (in minutes). Default is 5 minutes — short enough to limit exposure if someone intercepts the email, long enough for users to act on it."
+    }
+  },
+  "outputs": {
+    "okta_verify_id": "Use this to reference Okta Verify in sign-on policies.",
+    "webauthn_id": "Use this to reference WebAuthn in sign-on policies. Null if WebAuthn is disabled.",
+    "email_id": "Use this to reference Email recovery in authenticator enrollment policies. Null if email recovery is disabled.",
+    "password_id": "Use this to reference the Password authenticator in policies.",
+    "effective_mfa_method": "The actual MFA method in use after resolving risk profile defaults and any overrides."
+  }
+}
