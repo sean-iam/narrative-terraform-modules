@@ -8,24 +8,32 @@
   },
   "variables": {
     "risk_profile": {
+      "label": "Risk Profile",
       "client_description": "Your organization's security tier. Controls default MFA prompt frequency, session timeouts, and device trust for all sign-on policies. Standard is appropriate for most organizations. Elevated is recommended for companies handling sensitive customer data, PII, or subject to SOC 2 / HIPAA. Strict is for financial services, government contractors, or environments where a compromised session would have catastrophic impact.",
       "type": "string",
       "default": "standard",
       "required": false,
-      "allowed_values": ["standard", "elevated", "strict"]
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
     },
     "group_ids": {
+      "label": "Group IDs",
       "client_description": "Map of group names to Okta group IDs. Pass module.groups.all_group_ids from the groups module. This module reads from it to assign the correct user populations to each sign-on policy.",
       "type": "map(string)",
-      "required": true
+      "default": null,
+      "required": true,
+      "internal": true
     },
     "trusted_zone_id": {
+      "label": "Trusted Network Zone ID",
       "client_description": "Okta network zone ID representing your trusted office or VPN IP ranges. When provided, break glass and service account policies are restricted to that zone — preventing use from unexpected locations. Leave null if you haven't configured a network zone yet; you can add it later without recreating policies.",
       "type": "string",
       "default": null,
-      "required": false
+      "required": false,
+      "internal": true
     },
     "employee_idle_timeout_minutes": {
+      "label": "Employee Idle Session Timeout (minutes)",
       "client_description": "How long an employee session can be idle before requiring re-authentication (in minutes). Shorter values reduce the window for an attacker to hijack an unattended session. Balance against user friction — very short timeouts cause frequent re-logins during focus work.",
       "type": "number",
       "default": null,
@@ -38,6 +46,7 @@
       }
     },
     "admin_idle_timeout_minutes": {
+      "label": "Admin Idle Session Timeout (minutes)",
       "client_description": "Idle session timeout for administrator accounts (in minutes). Always shorter than employee timeout — admin sessions represent higher risk if hijacked. Admins typically use password managers and SSO, so re-authentication is low-friction.",
       "type": "number",
       "default": null,
@@ -50,6 +59,7 @@
       }
     },
     "max_session_lifetime_minutes": {
+      "label": "Maximum Session Lifetime (minutes)",
       "client_description": "Maximum total session length before a user must fully re-authenticate, regardless of activity (in minutes). Caps the blast radius of a stolen session token — even an active session expires after this window. 1440 = 24 hours (one business day), 720 = 12 hours (half day), 480 = 8 hours (workday).",
       "type": "number",
       "default": null,
@@ -62,6 +72,7 @@
       }
     },
     "mfa_prompt_mode": {
+      "label": "MFA Prompt Frequency",
       "client_description": "Controls how often users are prompted for MFA. DEVICE = remember this device for the mfa_lifetime_minutes period (best UX). SESSION = require MFA once per browser session. ALWAYS = require MFA on every sign-on regardless. ALWAYS is required for FedRAMP and many financial compliance frameworks.",
       "type": "string",
       "default": null,
@@ -75,6 +86,7 @@
       }
     },
     "mfa_remember_device": {
+      "label": "Allow Remembered MFA Device",
       "client_description": "Whether employees can register a trusted device to skip MFA prompts during the mfa_lifetime_minutes window. Greatly reduces MFA friction for users on personal laptops and phones. Disabled at elevated and strict because device-level trust reduces security guarantees — a compromised device bypasses MFA entirely.",
       "type": "bool",
       "default": null,
@@ -87,6 +99,7 @@
       }
     },
     "mfa_lifetime_minutes": {
+      "label": "Remembered Device Trust Lifetime (minutes)",
       "client_description": "How long a remembered device stays trusted before requiring MFA again (in minutes). Only relevant when mfa_remember_device is true. 43200 = 30 days — users on the same device go 30 days without an MFA prompt. Set to 0 to require MFA every session even when device trust is enabled.",
       "type": "number",
       "default": null,
@@ -99,6 +112,7 @@
       }
     },
     "contractor_idle_timeout_minutes": {
+      "label": "Contractor Idle Session Timeout (minutes)",
       "client_description": "Idle session timeout for contractor accounts (in minutes). Contractors represent third-party risk — they may work on shared or less-secure machines. A tighter idle timeout limits exposure from unattended contractor sessions.",
       "type": "number",
       "default": null,
@@ -111,6 +125,7 @@
       }
     },
     "break_glass_max_session_minutes": {
+      "label": "Break Glass Max Session (minutes)",
       "client_description": "Maximum session lifetime for break glass emergency accounts (in minutes). Break glass accounts should only be used during incidents. A short session lifetime forces re-authentication frequently — creating audit log entries — and limits the window if a break glass credential is used maliciously.",
       "type": "number",
       "default": null,

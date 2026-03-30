@@ -8,13 +8,16 @@
   },
   "variables": {
     "risk_profile": {
+      "label": "Risk Profile",
       "client_description": "Your organization's security tier. Controls which geo-blocking zones are created and whether Tor blocking is enabled.",
       "type": "string",
       "default": "standard",
       "required": false,
-      "allowed_values": ["standard", "elevated", "strict"]
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
     },
     "trusted_cidrs": {
+      "label": "Trusted IP Ranges",
       "client_description": "Your office IP addresses and VPN exit points. Used to relax MFA for on-premises users and restrict admin/service account access.",
       "type": "list(string)",
       "default": [],
@@ -25,33 +28,48 @@
       ]
     },
     "ofac_countries": {
+      "label": "OFAC Sanctioned Countries",
       "client_description": "Countries under OFAC sanctions. Authentication from these countries is blocked. Current list: North Korea, Iran, Cuba, Syria.",
       "type": "list(string)",
       "default": ["KP", "IR", "CU", "SY"],
       "required": false
     },
     "enable_high_risk_blocking": {
+      "label": "Enable High-Risk Country Blocking",
       "client_description": "Block authentication from high-risk countries. Enabled automatically for Elevated and Strict profiles. Set to true to enable for Standard.",
       "type": "bool",
       "default": null,
       "required": false,
-      "resolved_by": "risk_profile"
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
     },
     "high_risk_countries": {
+      "label": "High-Risk Countries",
       "client_description": "Countries considered high-risk. Blocked when enable_high_risk_blocking is true. Defaults to Russia, China, Belarus, Venezuela, Myanmar.",
       "type": "list(string)",
       "default": ["RU", "CN", "BY", "VE", "MM"],
       "required": false
     },
     "geo_mode": {
+      "label": "Geo Blocking Mode",
       "client_description": "Standard and Elevated block specific countries. Strict mode flips to allowlist-only — only countries you explicitly approve are allowed.",
       "type": "string",
       "default": null,
       "required": false,
       "resolved_by": "risk_profile",
-      "allowed_values": ["blocklist", "allowlist"]
+      "allowed_values": ["blocklist", "allowlist"],
+      "profile_defaults": {
+        "standard": "blocklist",
+        "elevated": "blocklist",
+        "strict": "allowlist"
+      }
     },
     "allowlist_countries": {
+      "label": "Allowlisted Countries (Strict mode)",
       "client_description": "Countries to allow when running in strict (allowlist) mode. Only used when geo_mode is allowlist. Provide ISO 3166-1 alpha-2 country codes.",
       "type": "list(string)",
       "default": [],
@@ -62,25 +80,36 @@
       ]
     },
     "enable_tor_blocking": {
+      "label": "Enable Tor / Anonymizer Blocking",
       "client_description": "Block Tor exit nodes and anonymous proxy services. Enabled automatically for Elevated and Strict profiles. Prevents evasion of geo-blocking controls.",
       "type": "bool",
       "default": null,
       "required": false,
-      "resolved_by": "risk_profile"
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
     },
     "geo_exception_ofac_group_id": {
+      "label": "OFAC Geo-Exception Group ID",
       "client_description": "Two exception groups allow specific users to authenticate from blocked countries. OFAC exceptions require documented business justification and quarterly review.",
       "type": "string",
       "default": null,
-      "required": false
+      "required": false,
+      "internal": true
     },
     "geo_exception_non_ofac_group_id": {
+      "label": "Non-OFAC Geo-Exception Group ID",
       "client_description": "Group for users exempt from non-OFAC geo-blocking (e.g., traveling employees). Time-bound membership recommended. Wired from the groups module.",
       "type": "string",
       "default": null,
-      "required": false
+      "required": false,
+      "internal": true
     },
     "threat_insight_action": {
+      "label": "ThreatInsight Action",
       "client_description": "How Okta ThreatInsight responds to suspicious IPs. 'block' prevents sign-in attempts. 'audit' logs them but allows. 'none' disables ThreatInsight entirely.",
       "type": "string",
       "default": "block",

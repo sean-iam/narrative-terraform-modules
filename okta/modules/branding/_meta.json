@@ -8,6 +8,7 @@
   },
   "variables": {
     "primary_color": {
+      "label": "Primary Brand Color",
       "client_description": "Your brand's primary color (hex code). Applied to the Okta sign-in page background, buttons, and headers. Must include the '#' prefix.",
       "type": "string",
       "default": "#1a1a2e",
@@ -15,6 +16,7 @@
       "examples": ["#1a1a2e", "#003366", "#2d2d2d"]
     },
     "secondary_color": {
+      "label": "Secondary / Accent Color",
       "client_description": "Your brand's secondary/accent color (hex code). Applied to links, highlights, and interactive elements on the Okta sign-in page.",
       "type": "string",
       "default": "#38bdf8",
@@ -22,12 +24,14 @@
       "examples": ["#38bdf8", "#0066cc", "#ff6600"]
     },
     "enable_security_notifications": {
+      "label": "Enable Security Notification Emails",
       "client_description": "Whether to enable Okta's built-in security notification emails. When enabled, users receive emails for new device logins, MFA enrollment/reset, password changes, and can report suspicious activity. Strongly recommended — disable only if you have an external notification system.",
       "type": "bool",
       "default": true,
       "required": false
     },
     "custom_domain": {
+      "label": "Custom Sign-In Domain",
       "client_description": "A custom domain for your Okta sign-in page (e.g., 'login.yourcompany.com'). Requires DNS CNAME configuration. Leave null to use the default Okta domain.",
       "type": "string",
       "default": null,

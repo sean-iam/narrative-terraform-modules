@@ -8,41 +8,62 @@
   },
   "variables": {
     "risk_profile": {
+      "label": "Risk Profile",
       "client_description": "Your organization's security tier. Controls the default response actions for anomaly events. Standard logs only, Elevated requires step-up MFA, Strict terminates sessions or alerts admins.",
       "type": "string",
       "default": "standard",
       "required": false,
-      "allowed_values": ["standard", "elevated", "strict"]
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
     },
     "velocity_threshold_kmh": {
+      "label": "Impossible Travel Speed Threshold (km/h)",
       "client_description": "The speed threshold (in km/h) for impossible travel detection. If a user authenticates from two locations that would require traveling faster than this speed, it is flagged. The default of 805 km/h (roughly commercial jet speed) catches teleportation-style fraud while allowing legitimate airline travel.",
       "type": "number",
       "default": 805,
       "required": false
     },
     "impossible_travel_action": {
+      "label": "Impossible Travel Response Action",
       "client_description": "What happens when impossible travel is detected. 'log' records the event, 'step_up_mfa' forces an additional authentication challenge, 'terminate_session' ends the session immediately. Overrides the risk_profile default.",
       "type": "string",
       "default": null,
       "required": false,
       "resolved_by": "risk_profile",
-      "allowed_values": ["log", "step_up_mfa", "terminate_session"]
+      "allowed_values": ["log", "step_up_mfa", "terminate_session"],
+      "profile_defaults": {
+        "standard": "log",
+        "elevated": "step_up_mfa",
+        "strict": "terminate_session"
+      }
     },
     "new_device_action": {
+      "label": "New Device Response Action",
       "client_description": "What happens when a user logs in from a previously unseen device. 'log' records the event, 'step_up_mfa' forces an additional challenge, 'step_up_mfa_alert' forces MFA and notifies admins. Overrides the risk_profile default.",
       "type": "string",
       "default": null,
       "required": false,
       "resolved_by": "risk_profile",
-      "allowed_values": ["log", "step_up_mfa", "step_up_mfa_alert"]
+      "allowed_values": ["log", "step_up_mfa", "step_up_mfa_alert"],
+      "profile_defaults": {
+        "standard": "log",
+        "elevated": "step_up_mfa",
+        "strict": "step_up_mfa_alert"
+      }
     },
     "new_city_action": {
+      "label": "New City Response Action",
       "client_description": "What happens when a user logs in from a city they have not used before. 'log' records the event, 'step_up_mfa' forces an additional challenge, 'step_up_mfa_alert' forces MFA and notifies admins. Overrides the risk_profile default.",
       "type": "string",
       "default": null,
       "required": false,
       "resolved_by": "risk_profile",
-      "allowed_values": ["log", "step_up_mfa", "step_up_mfa_alert"]
+      "allowed_values": ["log", "step_up_mfa", "step_up_mfa_alert"],
+      "profile_defaults": {
+        "standard": "log",
+        "elevated": "step_up_mfa",
+        "strict": "step_up_mfa_alert"
+      }
     }
   },
   "outputs": {

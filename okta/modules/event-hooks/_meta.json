@@ -8,27 +8,42 @@
   },
   "variables": {
     "risk_profile": {
+      "label": "Risk Profile",
       "client_description": "Your organization's security tier. Standard disables all hooks by default, Elevated enables security event monitoring, Strict enables both security and admin activity monitoring.",
       "type": "string",
       "default": "standard",
       "required": false,
-      "allowed_values": ["standard", "elevated", "strict"]
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
     },
     "enable_security_event_hook": {
+      "label": "Enable Security Event Hook",
       "client_description": "Whether to create a security event hook that monitors account lockouts, new sessions, MFA changes, policy updates, and membership changes. The hook also requires a valid endpoint URL. Overrides the risk_profile default.",
       "type": "bool",
       "default": null,
       "required": false,
-      "resolved_by": "risk_profile"
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
     },
     "enable_admin_activity_hook": {
+      "label": "Enable Admin Activity Hook",
       "client_description": "Whether to create an admin activity hook that monitors policy, application, and group lifecycle changes (create/update/delete). Provides an audit trail for all administrative actions. Overrides the risk_profile default.",
       "type": "bool",
       "default": null,
       "required": false,
-      "resolved_by": "risk_profile"
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": true
+      }
     },
     "security_hook_endpoint": {
+      "label": "Security Events Webhook URL",
       "client_description": "The HTTPS URL where security events will be sent. This could be a SIEM webhook endpoint (e.g., Splunk HEC, Datadog), a serverless function (e.g., AWS Lambda URL), or a webhook relay service. Must be HTTPS. Required for the security hook to be created.",
       "type": "string",
       "default": null,
@@ -36,6 +51,7 @@
       "examples": ["https://siem.example.com/api/okta-events", "https://hooks.zapier.com/hooks/catch/12345"]
     },
     "admin_hook_endpoint": {
+      "label": "Admin Activity Webhook URL",
       "client_description": "The HTTPS URL where admin activity events will be sent. Can be the same as or different from the security hook endpoint. Required for the admin activity hook to be created.",
       "type": "string",
       "default": null,

@@ -7,7 +7,15 @@
     "strict": "No risk-profile-driven behavior — apps are template-driven."
   },
   "variables": {
+    "group_ids": {
+      "label": "Group IDs",
+      "client_description": "Map of group names to Okta group IDs. Passed from the groups module — used to assign app access to specific user populations.",
+      "type": "map(string)",
+      "default": null,
+      "internal": true
+    },
     "oidc_apps": {
+      "label": "OIDC Applications",
       "client_description": "List of OIDC web applications to register in Okta. Each entry creates an OAuth 2.0 app with redirect URIs for your web application. Provide the app label, redirect URIs, and optionally customize grant types and token endpoint authentication method.",
       "type": "list(object)",
       "default": [],
@@ -23,6 +31,7 @@
       ]
     },
     "saml_apps": {
+      "label": "SAML Applications",
       "client_description": "List of SAML service provider applications. Each entry creates a SAML app integration with the specified SSO URL, recipient, destination, and audience. Obtain these values from your SAML SP's metadata.",
       "type": "list(object)",
       "default": [],
@@ -40,6 +49,7 @@
       ]
     },
     "service_apps": {
+      "label": "Service (M2M) Applications",
       "client_description": "List of OAuth2 service (machine-to-machine) applications. These use client_credentials grant for API-to-API communication without user context. Commonly used for background jobs, CI/CD pipelines, and microservice integration.",
       "type": "list(object)",
       "default": [],
@@ -52,6 +62,7 @@
       ]
     },
     "bookmark_apps": {
+      "label": "Bookmark Applications",
       "client_description": "List of bookmark applications that appear in the Okta portal as clickable links. No SSO — these are convenience links to external resources, documentation, or tools that don't support federated login.",
       "type": "list(object)",
       "default": [],

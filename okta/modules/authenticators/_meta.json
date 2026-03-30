@@ -1,21 +1,61 @@
 {
   "module": "authenticators",
   "description": "Configures MFA methods and enrollment based on risk profile. Implements defense-in-depth: Standard uses convenient push notifications, Elevated adds number challenge to block MFA fatigue attacks, Strict enforces phishing-proof hardware keys.",
+  "risk_profile_effects": {
+    "standard": "MFA method: Okta Verify push. WebAuthn disabled.",
+    "elevated": "MFA method: Okta Verify number challenge (prevents MFA fatigue). WebAuthn enabled.",
+    "strict": "MFA method: WebAuthn/FIDO2 hardware key (phishing-proof). WebAuthn required."
+  },
   "variables": {
     "risk_profile": {
-      "client_description": "Your security tier. Standard works for most companies. Elevated adds protections against MFA fatigue attacks (where hackers spam approval requests). Strict requires physical security keys — best for high-value targets like finance or executive teams."
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Standard works for most companies. Elevated adds protections against MFA fatigue attacks (where hackers spam approval requests). Strict requires physical security keys — best for high-value targets like finance or executive teams.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
     },
     "mfa_method": {
-      "client_description": "Override the MFA method set by your risk profile. Options: 'okta_verify_push' — User taps 'Approve' on their phone. Convenient but can be vulnerable to MFA fatigue attacks where attackers spam approval requests. 'okta_verify_number' — User types a matching number from screen into their phone. Prevents MFA fatigue attacks. 'webauthn_fido2' — User taps a physical security key. Completely phishing-proof. Requires hardware keys (~$25-50 each) for all users. Leave blank to use your risk profile default."
+      "label": "MFA Method",
+      "client_description": "Override the MFA method set by your risk profile. Options: 'okta_verify_push' — User taps 'Approve' on their phone. Convenient but can be vulnerable to MFA fatigue attacks where attackers spam approval requests. 'okta_verify_number' — User types a matching number from screen into their phone. Prevents MFA fatigue attacks. 'webauthn_fido2' — User taps a physical security key. Completely phishing-proof. Requires hardware keys (~$25-50 each) for all users. Leave blank to use your risk profile default.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["okta_verify_push", "okta_verify_number", "webauthn_fido2"],
+      "profile_defaults": {
+        "standard": "okta_verify_push",
+        "elevated": "okta_verify_number",
+        "strict": "webauthn_fido2"
+      }
     },
     "enable_webauthn": {
-      "client_description": "Enable hardware security key support. Required for Elevated and Strict profiles. Standard-only orgs can skip this. If enabled, users can register YubiKeys, Touch ID, or Windows Hello as a second factor."
+      "label": "Enable WebAuthn / Hardware Keys",
+      "client_description": "Enable hardware security key support. Required for Elevated and Strict profiles. Standard-only orgs can skip this. If enabled, users can register YubiKeys, Touch ID, or Windows Hello as a second factor.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
     },
     "enable_email_recovery": {
-      "client_description": "Allow users to recover their account via email. Recommended for all profiles. Disabling this makes account recovery significantly harder and increases IT helpdesk load."
+      "label": "Enable Email Account Recovery",
+      "client_description": "Allow users to recover their account via email. Recommended for all profiles. Disabling this makes account recovery significantly harder and increases IT helpdesk load.",
+      "type": "bool",
+      "default": true,
+      "required": false
     },
     "email_token_lifetime_minutes": {
-      "client_description": "How long an email recovery link stays valid (in minutes). Default is 5 minutes — short enough to limit exposure if someone intercepts the email, long enough for users to act on it."
+      "label": "Email Recovery Link Lifetime (minutes)",
+      "client_description": "How long an email recovery link stays valid (in minutes). Default is 5 minutes — short enough to limit exposure if someone intercepts the email, long enough for users to act on it.",
+      "type": "number",
+      "default": 5,
+      "required": false
     }
   },
   "outputs": {

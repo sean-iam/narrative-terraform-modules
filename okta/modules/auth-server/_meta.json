@@ -8,55 +8,81 @@
   },
   "variables": {
     "risk_profile": {
+      "label": "Risk Profile",
       "client_description": "Your organization's security tier. Controls token lifetimes — stricter profiles issue shorter-lived tokens to reduce the blast radius of token theft.",
       "type": "string",
       "default": "standard",
       "required": false,
-      "allowed_values": ["standard", "elevated", "strict"]
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
     },
     "group_ids": {
+      "label": "Group IDs",
       "client_description": "Map of group names to Okta group IDs. Passed from the groups module — used to scope token policies.",
       "type": "map(string)",
-      "required": true
+      "default": null,
+      "required": true,
+      "internal": true
     },
     "auth_server_name": {
+      "label": "Authorization Server Name",
       "client_description": "Name for your custom authorization server. This appears in the Okta admin console and in issuer URLs.",
       "type": "string",
       "default": "custom",
       "required": false
     },
     "auth_server_description": {
+      "label": "Authorization Server Description",
       "client_description": "Description for the authorization server displayed in the Okta admin console.",
       "type": "string",
       "default": "Custom authorization server",
       "required": false
     },
     "scopes": {
+      "label": "Custom Scopes",
       "client_description": "Custom scopes to register on the authorization server. Applications request these scopes during authentication to control API access levels.",
       "type": "list(string)",
       "default": ["read", "write", "admin"],
       "required": false
     },
     "access_token_lifetime_minutes": {
+      "label": "Access Token Lifetime (minutes)",
       "client_description": "How long access tokens are valid for internal applications (in minutes). Shorter lifetimes are more secure but cause more frequent re-authentication. Overrides the risk_profile default.",
       "type": "number",
       "default": null,
       "required": false,
-      "resolved_by": "risk_profile"
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 60,
+        "elevated": 30,
+        "strict": 15
+      }
     },
     "refresh_token_lifetime_days": {
+      "label": "Refresh Token Lifetime (days)",
       "client_description": "How long refresh tokens are valid (in days). After expiry, users must fully re-authenticate. Overrides the risk_profile default.",
       "type": "number",
       "default": null,
       "required": false,
-      "resolved_by": "risk_profile"
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 30,
+        "elevated": 14,
+        "strict": 7
+      }
     },
     "service_token_lifetime_minutes": {
+      "label": "Service Token Lifetime (minutes)",
       "client_description": "How long access tokens are valid for service-to-service (M2M) integrations (in minutes). Overrides the risk_profile default.",
       "type": "number",
       "default": null,
       "required": false,
-      "resolved_by": "risk_profile"
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 60,
+        "elevated": 30,
+        "strict": 15
+      }
     }
   },
   "outputs": {

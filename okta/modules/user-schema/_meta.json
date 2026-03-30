@@ -8,42 +8,49 @@
   },
   "variables": {
     "enable_employee_id": {
+      "label": "Enable Employee ID Attribute",
       "client_description": "Whether to create the employee_id custom attribute. This is a unique identifier synced from your HR system, used for cross-system user correlation. Disable only if you already have an employee ID attribute configured outside Terraform.",
       "type": "bool",
       "default": true,
       "required": false
     },
     "enable_manager_email": {
+      "label": "Enable Manager Email Attribute",
       "client_description": "Whether to create the manager_email custom attribute. Stores the direct manager's email for approval workflows and org hierarchy reporting.",
       "type": "bool",
       "default": true,
       "required": false
     },
     "enable_start_date": {
+      "label": "Enable Start Date Attribute",
       "client_description": "Whether to create the start_date custom attribute. Used for onboarding automation — pre-provisioning access before a user's first day.",
       "type": "bool",
       "default": true,
       "required": false
     },
     "enable_end_date": {
+      "label": "Enable End Date Attribute",
       "client_description": "Whether to create the end_date custom attribute. Used for offboarding automation — scheduling deprovisioning when an employee leaves.",
       "type": "bool",
       "default": true,
       "required": false
     },
     "enable_office_location": {
+      "label": "Enable Office Location Attribute",
       "client_description": "Whether to create the office_location custom attribute. Stores the physical office location for location-based access policies and compliance reporting.",
       "type": "bool",
       "default": true,
       "required": false
     },
     "enable_risk_level": {
+      "label": "Enable Risk Level Attribute",
       "client_description": "Whether to create the risk_level custom attribute. An enum (low/medium/high/critical) used to drive adaptive access policies — high-risk users can receive stricter authentication requirements.",
       "type": "bool",
       "default": true,
       "required": false
     },
     "enable_last_access_review_date": {
+      "label": "Enable Last Access Review Date Attribute",
       "client_description": "Whether to create the last_access_review_date custom attribute. Tracks when a user's access was last certified, supporting compliance audit requirements (SOX, SOC 2, etc.).",
       "type": "bool",
       "default": true,

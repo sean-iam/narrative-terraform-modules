@@ -8,18 +8,24 @@
   },
   "variables": {
     "risk_profile": {
+      "label": "Risk Profile",
       "client_description": "Your organization's security tier. Controls default password complexity, rotation intervals, and lockout behavior for all policies. Most clients use 'standard'. Choose 'elevated' or 'strict' for regulated industries, financial services, or environments handling sensitive data.",
       "type": "string",
       "default": "standard",
       "required": false,
-      "allowed_values": ["standard", "elevated", "strict"]
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
     },
     "group_ids": {
+      "label": "Group IDs",
       "client_description": "Map of group names to Okta group IDs. Pass module.groups.all_group_ids from the groups module. Required to associate password policies with the correct user populations.",
       "type": "map(string)",
-      "required": true
+      "default": null,
+      "required": true,
+      "internal": true
     },
     "password_min_length": {
+      "label": "Minimum Password Length (employees)",
       "client_description": "Minimum password length for end users (employees and contractors). Overrides the risk profile default. NIST SP 800-63B recommends at least 8 characters; most compliance frameworks (SOC 2, HIPAA) require 8-12. Longer is better — consider passphrases.",
       "type": "number",
       "default": null,
@@ -32,6 +38,7 @@
       }
     },
     "password_max_age_days": {
+      "label": "Password Rotation Interval (days)",
       "client_description": "How often end users must change their password (in days). Set to 0 to disable mandatory rotation. NIST SP 800-63B recommends against mandatory rotation unless compromise is detected. This default is set for compliance with SOC 2/HIPAA/ISO auditors. Set to 0 to disable rotation if following current NIST guidance.",
       "type": "number",
       "default": null,
@@ -45,6 +52,7 @@
       "nist_note": "NIST SP 800-63B recommends against mandatory rotation unless compromise is detected. This default is set for compliance with SOC 2/HIPAA/ISO auditors. Set to 0 to disable rotation if following current NIST guidance."
     },
     "password_history_count": {
+      "label": "Password History Count",
       "client_description": "Number of previous passwords a user cannot reuse. Prevents the common pattern of cycling through a small set of variations. 8 is typical for standard environments; 24 is recommended for high-compliance environments.",
       "type": "number",
       "default": null,
@@ -57,6 +65,7 @@
       }
     },
     "password_lockout_attempts": {
+      "label": "Lockout Attempt Threshold",
       "client_description": "Number of consecutive failed login attempts before an account is locked. Lower values are more secure but increase helpdesk load from accidental lockouts. Standard allows 5 attempts; elevated and strict reduce to 3 to limit brute-force windows.",
       "type": "number",
       "default": null,
@@ -69,6 +78,7 @@
       }
     },
     "password_lockout_duration_minutes": {
+      "label": "Account Lockout Duration (minutes)",
       "client_description": "How long a locked account stays locked before automatically unlocking (in minutes). Longer durations deter brute-force attacks but require users to wait or contact helpdesk. Set to 0 for permanent lockout (manual unlock required).",
       "type": "number",
       "default": null,
@@ -81,6 +91,7 @@
       }
     },
     "admin_password_min_length": {
+      "label": "Minimum Admin Password Length",
       "client_description": "Minimum password length for administrator accounts. Always higher than end-user minimum — admins have elevated access and are higher-value targets. Strongly recommended to use a password manager for admin credentials at these lengths.",
       "type": "number",
       "default": null,
@@ -93,6 +104,7 @@
       }
     },
     "admin_password_max_age_days": {
+      "label": "Admin Password Rotation Interval (days)",
       "client_description": "How often administrator accounts must rotate passwords (in days). Shorter than the end-user interval because admin credentials represent greater risk if compromised. NIST SP 800-63B recommends against mandatory rotation unless compromise is detected. This default is set for compliance with SOC 2/HIPAA/ISO auditors. Set to 0 to disable rotation if following current NIST guidance.",
       "type": "number",
       "default": null,
@@ -106,6 +118,7 @@
       "nist_note": "NIST SP 800-63B recommends against mandatory rotation unless compromise is detected. This default is set for compliance with SOC 2/HIPAA/ISO auditors. Set to 0 to disable rotation if following current NIST guidance."
     },
     "enable_lockout_admin_notification": {
+      "label": "Admin Lockout Notifications",
       "client_description": "Send an email notification to administrators when a user account is locked out. Useful in strict environments where lockouts may indicate an active attack. Disabled by default at standard and elevated to reduce alert fatigue; enabled at strict.",
       "type": "bool",
       "default": null,

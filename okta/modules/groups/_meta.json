@@ -8,25 +8,36 @@
   },
   "variables": {
     "risk_profile": {
+      "label": "Risk Profile",
       "client_description": "Your organization's security tier. Controls default behavior for department group creation. Most clients use 'standard' — choose 'elevated' or 'strict' if you operate in a regulated industry or handle sensitive data.",
       "type": "string",
       "default": "standard",
       "required": false,
-      "allowed_values": ["standard", "elevated", "strict"]
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
     },
     "org_display_name": {
+      "label": "Organization Display Name",
       "client_description": "Your organization's display name. Used in group descriptions for clarity in the Okta admin console.",
       "type": "string",
+      "default": null,
       "required": true
     },
     "enable_department_groups": {
+      "label": "Enable Department Groups",
       "client_description": "Whether to create department-based groups with automatic assignment rules. When enabled, each department in your list gets its own Okta group, and users are automatically added based on their department attribute. Set to false if you manage department groups outside of Terraform or through a different mechanism.",
       "type": "bool",
       "default": null,
       "required": false,
-      "resolved_by": "risk_profile"
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
     },
     "departments": {
+      "label": "Department List",
       "client_description": "The list of departments in your organization. Each department gets an Okta group (e.g., 'Dept - Engineering') and an auto-assignment rule that adds users whose department attribute matches. Add or remove departments to match your org structure.",
       "type": "list(string)",
       "default": ["Engineering", "Finance", "Human Resources", "IT Operations", "Sales", "Customer Support", "Legal & Compliance"],
@@ -37,24 +48,28 @@
       ]
     },
     "enable_contractor_group": {
+      "label": "Enable Contractor Group",
       "client_description": "Whether to create a 'Contractors' group with an auto-assignment rule for users whose userType is 'Contractor'. Enable this if your organization uses Okta for contractor identity management.",
       "type": "bool",
       "default": true,
       "required": false
     },
     "enable_executive_group": {
+      "label": "Enable Executive Leadership Group",
       "client_description": "Whether to create an 'Executive Leadership' group for C-suite and VP-level users. This group is typically targeted by enhanced authentication policies (e.g., phishing-resistant MFA).",
       "type": "bool",
       "default": true,
       "required": false
     },
     "enable_geo_exception_groups": {
+      "label": "Enable Geo-Exception Groups",
       "client_description": "Whether to create geo-blocking exception groups. Creates two groups: one for OFAC-country exceptions (requires documented business justification) and one for non-OFAC exceptions (e.g., traveling employees). Used by the network/zone policies module to exempt specific users from geographic access restrictions.",
       "type": "bool",
       "default": true,
       "required": false
     },
     "custom_groups": {
+      "label": "Custom Groups",
       "client_description": "Any additional Okta groups your organization needs beyond the standard set. Provide a name and description for each. Useful for project teams, temporary initiatives, or organization-specific groupings not covered by the built-in groups.",
       "type": "list(object({name=string, description=string}))",
       "default": [],
