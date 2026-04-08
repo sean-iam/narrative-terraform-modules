@@ -1,0 +1,82 @@
+{
+  "module": "governance-policies",
+  "description": "Configures top-level Okta Identity Governance policies for access requests and certifications. Creates the governance policy framework that other modules (access-requests, certifications, approval-workflows) attach to. Controls default actions for request handling and certification failure remediation.",
+  "terraform_support": "partial",
+  "terraform_support_notes": "Uses okta_policy with ACCESS_POLICY type as the closest available resource. Full OIG-specific governance policy resources (okta_governance_policy) require Okta API v2024.06+ and are not yet in the Terraform provider. Policy shell is created; OIG-specific rule properties require manual configuration or API calls.",
+  "risk_profile_effects": {
+    "standard": "Request policy: require_approval. Certification failure action: notify (flag for review, no auto-remediation).",
+    "elevated": "Request policy: require_approval. Certification failure action: flag (requires manual review and action).",
+    "strict": "Request policy: require_approval. Certification failure action: revoke (automatic access removal on cert failure)."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your governance security tier. Controls how aggressively the system responds to access request decisions and certification failures.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "enable_request_policy": {
+      "label": "Enable Access Request Policy",
+      "client_description": "Create the governance policy that controls access request workflows. Should be enabled for any organization using OIG Access Requests.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "enable_certification_policy": {
+      "label": "Enable Certification Policy",
+      "client_description": "Create the governance policy that controls access certification behavior. Should be enabled for any organization running certification campaigns.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "request_policy_action": {
+      "label": "Request Policy Action",
+      "client_description": "Default action for access requests. 'allow' grants immediately without approval (not recommended). 'require_approval' routes to the approval workflow. 'deny' blocks all self-service requests (admin-only provisioning).",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["allow", "require_approval", "deny"],
+      "profile_defaults": {
+        "standard": "require_approval",
+        "elevated": "require_approval",
+        "strict": "require_approval"
+      }
+    },
+    "certification_policy_action": {
+      "label": "Certification Failure Action",
+      "client_description": "What happens when access is not certified (reviewer denies or campaign expires). 'notify' sends an alert but takes no action. 'flag' marks for manual review. 'revoke' automatically removes the access — use this for strict compliance environments (SOX, HIPAA, FedRAMP).",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["revoke", "flag", "notify"],
+      "profile_defaults": {
+        "standard": "notify",
+        "elevated": "flag",
+        "strict": "revoke"
+      }
+    }
+  },
+  "outputs": {
+    "request_policy_id": "Access request governance policy ID. Null if disabled.",
+    "certification_policy_id": "Certification governance policy ID. Null if disabled.",
+    "effective_request_policy_action": "The resolved request policy action after applying risk profile defaults and overrides.",
+    "effective_certification_policy_action": "The resolved certification failure action after applying risk profile defaults and overrides."
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "module": "integrations",
+  "description": "Configures third-party integrations for Okta Identity Governance including ticketing systems (ServiceNow, Jira), messaging platforms (Slack, Teams) for interactive approvals, and SIEM forwarding for centralized audit logging. Most integrations use okta_event_hook for outbound events; full bidirectional sync requires Okta Workflows or the Governance API.",
+  "terraform_support": "partial",
+  "terraform_support_notes": "Event hooks for Slack, Teams, and SIEM forwarding are fully supported via okta_event_hook. ServiceNow and Jira event hooks are supported for outbound events. Full bidirectional ticket sync (auto-create tickets, sync status) requires Okta Workflows connectors or OIG Governance API configuration. Interactive approval buttons in Slack/Teams require middleware or Okta Workflows.",
+  "risk_profile_effects": {
+    "standard": "No integrations enabled by default. All integrations are opt-in based on the client's tooling.",
+    "elevated": "No integrations enabled by default. All integrations are opt-in. Ticketing and messaging are environment-specific decisions, not risk-driven.",
+    "strict": "SIEM forwarding enabled by default (if endpoint provided). All other integrations opt-in. Strict environments are expected to have centralized audit logging."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Only affects SIEM forwarding default (enabled at strict). Ticketing and messaging integrations are environment-specific and always opt-in.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "enable_servicenow_integration": {
+      "label": "Enable ServiceNow Integration",
+      "client_description": "Forward governance events to ServiceNow for automatic ticket creation. Outbound event forwarding is immediate; bidirectional sync (ticket status back to OIG) requires additional Okta Workflows or ServiceNow IntegrationHub setup.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": false
+      }
+    },
+    "servicenow_instance_url": {
+      "label": "ServiceNow Instance URL",
+      "client_description": "Your ServiceNow instance URL. Required if ServiceNow integration is enabled.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "examples": ["https://company.service-now.com"]
+    },
+    "servicenow_api_credential": {
+      "label": "ServiceNow API Credential",
+      "client_description": "API credential for ServiceNow ticket creation. Use a service account with incident creation permissions.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "sensitive": true
+    },
+    "enable_jira_integration": {
+      "label": "Enable Jira Integration",
+      "client_description": "Forward governance events to Jira for automatic issue creation. Outbound forwarding is immediate; bidirectional sync requires Okta Workflows or Jira Automation.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": false
+      }
+    },
+    "jira_instance_url": {
+      "label": "Jira Instance URL",
+      "client_description": "Your Jira Cloud instance URL. Required if Jira integration is enabled.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "examples": ["https://company.atlassian.net"]
+    },
+    "jira_api_token": {
+      "label": "Jira API Token",
+      "client_description": "API token for Jira issue creation. Use a service account with project write permissions.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "sensitive": true
+    },
+    "enable_slack_approvals": {
+      "label": "Enable Slack Approvals",
+      "client_description": "Send approval requests to Slack. Approvers receive notifications with request details. For interactive approve/deny buttons, configure Okta Workflows with the Slack connector.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": false
+      }
+    },
+    "enable_teams_approvals": {
+      "label": "Enable Teams Approvals",
+      "client_description": "Send approval requests to Microsoft Teams. Approvers receive notifications with request details. For interactive approve/deny cards, configure Okta Workflows with the Teams connector or Power Automate.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": false
+      }
+    },
+    "slack_approval_webhook_url": {
+      "label": "Slack Approval Webhook URL",
+      "client_description": "Slack incoming webhook URL for approval notifications. Required if Slack approvals are enabled.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "examples": ["https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXX"]
+    },
+    "teams_approval_webhook_url": {
+      "label": "Teams Approval Webhook URL",
+      "client_description": "Microsoft Teams incoming webhook URL for approval notifications. Required if Teams approvals are enabled.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "examples": ["https://outlook.office.com/webhook/XXXXXXXX"]
+    },
+    "enable_siem_forwarding": {
+      "label": "Enable SIEM Forwarding",
+      "client_description": "Forward all governance events to a SIEM for centralized audit logging. Includes policy changes, access decisions, membership modifications, and lifecycle events. Enabled by default at strict tier.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": true
+      }
+    },
+    "siem_forwarding_endpoint": {
+      "label": "SIEM Forwarding Endpoint",
+      "client_description": "HTTPS endpoint for SIEM event forwarding. Required if SIEM forwarding is enabled.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "examples": ["https://siem.example.com/api/okta-governance"]
+    }
+  },
+  "outputs": {
+    "servicenow_integration_enabled": "Whether ServiceNow integration is active.",
+    "servicenow_hook_id": "ServiceNow hook ID. Null if not created.",
+    "jira_integration_enabled": "Whether Jira integration is active.",
+    "jira_hook_id": "Jira hook ID. Null if not created.",
+    "slack_approvals_enabled": "Whether Slack approvals are active.",
+    "slack_approvals_hook_id": "Slack approvals hook ID. Null if not created.",
+    "teams_approvals_enabled": "Whether Teams approvals are active.",
+    "teams_approvals_hook_id": "Teams approvals hook ID. Null if not created.",
+    "siem_forwarding_enabled": "Whether SIEM forwarding is active.",
+    "siem_forwarding_hook_id": "SIEM forwarding hook ID. Null if not created."
+  }
+}

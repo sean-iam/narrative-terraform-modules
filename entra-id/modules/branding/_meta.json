@@ -1,0 +1,51 @@
+{
+  "module": "branding",
+  "description": "Configures Entra ID company branding for the sign-in experience including colors, text, and self-service password reset settings. Logo and background image uploads require the Azure portal or Microsoft Graph API.",
+  "risk_profile_effects": {
+    "standard": "No risk profile variation — branding is cosmetic, not security-sensitive.",
+    "elevated": "No risk profile variation — branding is cosmetic, not security-sensitive.",
+    "strict": "No risk profile variation — branding is cosmetic, not security-sensitive."
+  },
+  "variables": {
+    "org_display_name": {
+      "label": "Organization Display Name",
+      "client_description": "Your organization's name for the sign-in page.",
+      "type": "string",
+      "default": null,
+      "required": true
+    },
+    "primary_color": {
+      "label": "Primary Brand Color",
+      "client_description": "Hex color code for buttons and links on the sign-in page. Should match your corporate brand.",
+      "type": "string",
+      "default": "#1a1a2e",
+      "required": false
+    },
+    "background_color": {
+      "label": "Background Color",
+      "client_description": "Hex color code for the sign-in page background.",
+      "type": "string",
+      "default": "#ffffff",
+      "required": false
+    },
+    "enable_self_service_password_reset": {
+      "label": "Enable Self-Service Password Reset",
+      "client_description": "Allow users to reset their own passwords. Reduces IT helpdesk load. Requires MFA registration.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "sign_in_page_text": {
+      "label": "Sign-In Page Text",
+      "client_description": "Custom text displayed on the sign-in page. Use for security reminders, helpdesk contact info, or legal notices.",
+      "type": "string",
+      "default": null,
+      "required": false
+    }
+  },
+  "outputs": {
+    "primary_color": "Configured primary brand color",
+    "background_color": "Configured background color",
+    "self_service_password_reset_enabled": "Whether SSPR is enabled"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "module": "groups",
+  "description": "Creates Entra ID security groups for admin roles, functional teams, departments, geo-exceptions, and custom purposes. Assigns built-in directory roles to admin groups and sets up dynamic membership rules for automatic population.",
+  "risk_profile_effects": {
+    "standard": "All department groups enabled by default.",
+    "elevated": "All department groups enabled by default.",
+    "strict": "All department groups enabled by default."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your organization's security tier. Controls default behavior for department group creation. Most clients use 'standard' — choose 'elevated' or 'strict' if you operate in a regulated industry or handle sensitive data.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "org_display_name": {
+      "label": "Organization Display Name",
+      "client_description": "Your organization's display name. Used in group descriptions for clarity in the Entra admin center.",
+      "type": "string",
+      "default": null,
+      "required": true
+    },
+    "enable_department_groups": {
+      "label": "Enable Department Groups",
+      "client_description": "Whether to create department-based groups with dynamic membership rules. When enabled, each department in your list gets its own Entra ID security group, and users are automatically added based on their department attribute. Set to false if you manage department groups outside of Terraform or through a different mechanism.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "departments": {
+      "label": "Department List",
+      "client_description": "The list of departments in your organization. Each department gets an Entra ID security group (e.g., 'Dept - Engineering') with a dynamic membership rule that adds users whose department attribute matches. Add or remove departments to match your org structure.",
+      "type": "list(string)",
+      "default": ["Engineering", "Finance", "Human Resources", "IT Operations", "Sales", "Customer Support", "Legal & Compliance"],
+      "required": false,
+      "examples": [
+        ["Engineering", "Product", "Design", "Sales", "Marketing", "Finance", "Legal", "HR", "IT"],
+        ["Technology", "Operations", "Commercial"]
+      ]
+    },
+    "enable_contractor_group": {
+      "label": "Enable Contractor Group",
+      "client_description": "Whether to create a 'Contractors' group with a dynamic membership rule for users whose employeeType is 'Contractor'. Enable this if your organization uses Entra ID for contractor identity management.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_executive_group": {
+      "label": "Enable Executive Leadership Group",
+      "client_description": "Whether to create an 'Executive Leadership' group for C-suite and VP-level users. This group is typically targeted by enhanced Conditional Access policies (e.g., phishing-resistant MFA).",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_geo_exception_groups": {
+      "label": "Enable Geo-Exception Groups",
+      "client_description": "Whether to create geo-blocking exception groups. Creates two groups: one for OFAC-country exceptions (requires documented business justification) and one for non-OFAC exceptions (e.g., traveling employees). Used by Conditional Access policies to exempt specific users from geographic access restrictions.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "custom_groups": {
+      "label": "Custom Groups",
+      "client_description": "Any additional Entra ID security groups your organization needs beyond the standard set. Provide a name and description for each. Useful for project teams, temporary initiatives, or organization-specific groupings not covered by the built-in groups.",
+      "type": "list(object({name=string, description=string}))",
+      "default": [],
+      "required": false,
+      "examples": [
+        [
+          { "name": "Project Alpha", "description": "Cross-functional team for Project Alpha initiative" },
+          { "name": "Remote Workers", "description": "Employees approved for permanent remote work" }
+        ]
+      ]
+    }
+  },
+  "outputs": {
+    "global_admins_id": "Object ID for the Global Admins group",
+    "all_employees_id": "Object ID for the All Employees group",
+    "contractors_id": "Object ID for the Contractors group (null if disabled)",
+    "break_glass_id": "Object ID for the Break Glass emergency access group",
+    "service_accounts_id": "Object ID for the Service Accounts group",
+    "privileged_access_id": "Object ID for the Privileged Access (JIT) group",
+    "executive_leadership_id": "Object ID for the Executive Leadership group (null if disabled)",
+    "geo_exception_ofac_id": "Object ID for OFAC geo-exception group (null if disabled)",
+    "geo_exception_non_ofac_id": "Object ID for non-OFAC geo-exception group (null if disabled)",
+    "department_group_ids": "Map of department name to Entra ID group object ID",
+    "admin_group_ids": "Map of admin role name to Entra ID group object ID",
+    "all_group_ids": "Combined map of all group names to Entra ID group object IDs"
+  }
+}

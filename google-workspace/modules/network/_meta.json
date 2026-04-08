@@ -1,0 +1,68 @@
+{
+  "module": "network",
+  "description": "Configures trusted networks, IP allowlists, and context-aware access for Google Workspace. Standard uses no IP restrictions, Elevated adds IP allowlists and context-aware access, Strict enforces IP restrictions for all admin access.",
+  "risk_profile_effects": {
+    "standard": "No IP restrictions. Context-aware access disabled.",
+    "elevated": "IP allowlist enforced for admin access. Context-aware access enabled (requires Cloud Identity Premium).",
+    "strict": "IP allowlist enforced for all admin access. Context-aware access enabled with device trust required."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Standard has no network restrictions. Elevated and Strict enforce IP allowlists and context-aware access.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "group_ids": {
+      "label": "Group IDs",
+      "client_description": "Map of group names to IDs from the groups module.",
+      "type": "map(string)",
+      "default": null,
+      "required": true,
+      "internal": true
+    },
+    "trusted_cidrs": {
+      "label": "Trusted IP Ranges",
+      "client_description": "Your office and VPN IP ranges in CIDR notation. Used to restrict admin access and define trusted network zones.",
+      "type": "list(string)",
+      "default": [],
+      "required": false,
+      "examples": [["203.0.113.0/24", "198.51.100.0/24"]]
+    },
+    "enable_context_aware_access": {
+      "label": "Enable Context-Aware Access",
+      "client_description": "Enable conditional access based on device posture, network, and location. Requires Cloud Identity Premium or Google Workspace Enterprise.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "enforce_ip_allowlist": {
+      "label": "Enforce IP Allowlist",
+      "client_description": "Restrict admin console and service account access to trusted IP ranges only. Requires trusted_cidrs to be populated.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    }
+  },
+  "outputs": {
+    "network_policy_ou_path": "OU path for network policy scoping",
+    "admin_ip_restriction_ou_path": "OU path for admin IP restriction (null if not enforced)",
+    "context_aware_access_enabled": "Whether context-aware access is enabled",
+    "ip_allowlist_enforced": "Whether IP allowlist is enforced"
+  }
+}

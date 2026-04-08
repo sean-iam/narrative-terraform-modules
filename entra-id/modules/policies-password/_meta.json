@@ -1,0 +1,113 @@
+{
+  "module": "policies-password",
+  "description": "Configures Entra ID tenant-wide password protection: smart lockout thresholds, password expiration, custom banned password lists, and password history. Unlike Okta which supports per-group policies, Entra ID uses a single tenant-wide policy.",
+  "risk_profile_effects": {
+    "standard": "12-char minimum guidance, 90-day expiration, 10 lockout attempts, 60s lockout, banned list enabled.",
+    "elevated": "14-char minimum guidance, 60-day expiration, 5 lockout attempts, 120s lockout, banned list enabled.",
+    "strict": "16-char minimum guidance, no expiration (NIST 800-63B compliant), 3 lockout attempts, 300s lockout, banned list enabled."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Controls password complexity, expiration, and lockout defaults.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "password_min_length": {
+      "label": "Minimum Password Length",
+      "client_description": "Recommended minimum password length. Entra ID enforces an 8-character minimum natively; this sets the organizational standard enforced through user guidance and Conditional Access. Leave blank to use your risk profile default.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 12,
+        "elevated": 14,
+        "strict": 16
+      }
+    },
+    "password_max_age_days": {
+      "label": "Password Expiration (days)",
+      "client_description": "Maximum password age in days before users must change it. Set to 0 to disable expiration (recommended by NIST 800-63B for strict profiles with strong MFA). Leave blank to use your risk profile default.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 90,
+        "elevated": 60,
+        "strict": 0
+      }
+    },
+    "password_history_count": {
+      "label": "Password History Count",
+      "client_description": "Number of previous passwords a user cannot reuse. Entra ID supports up to 24. Leave blank to use your risk profile default.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 8,
+        "elevated": 12,
+        "strict": 24
+      }
+    },
+    "password_lockout_attempts": {
+      "label": "Smart Lockout Threshold",
+      "client_description": "Number of failed sign-in attempts before Entra ID smart lockout activates. Smart lockout is adaptive — it learns legitimate vs. attack patterns. Leave blank to use your risk profile default.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 10,
+        "elevated": 5,
+        "strict": 3
+      }
+    },
+    "password_lockout_duration_seconds": {
+      "label": "Smart Lockout Duration (seconds)",
+      "client_description": "How long an account stays locked after exceeding the lockout threshold. Entra ID smart lockout automatically increases duration for repeat offenders. Leave blank to use your risk profile default.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 60,
+        "elevated": 120,
+        "strict": 300
+      }
+    },
+    "enable_banned_password_list": {
+      "label": "Enable Custom Banned Password List",
+      "client_description": "Enable Azure AD Password Protection custom banned list. Supplements Microsoft's global banned password list with organization-specific terms (company name, product names, etc.).",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "banned_passwords": {
+      "label": "Custom Banned Passwords",
+      "client_description": "Organization-specific banned password terms. Include your company name, product names, office locations, and other terms attackers might guess. Up to 1000 entries.",
+      "type": "list(string)",
+      "default": [],
+      "required": false
+    }
+  },
+  "outputs": {
+    "effective_password_min_length": "Resolved minimum password length for the selected risk profile",
+    "effective_password_max_age_days": "Resolved password expiration in days (0 = no expiration)",
+    "effective_lockout_attempts": "Resolved smart lockout threshold",
+    "effective_lockout_duration_seconds": "Resolved smart lockout duration in seconds",
+    "effective_password_history_count": "Resolved password history count",
+    "banned_password_list_enabled": "Whether the custom banned password list is enabled"
+  }
+}

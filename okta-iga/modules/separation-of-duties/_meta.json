@@ -1,0 +1,77 @@
+{
+  "module": "separation-of-duties",
+  "description": "Configures Okta Identity Governance separation of duties (SoD) policies. SoD prevents users from holding incompatible entitlements that create fraud or compliance risk (e.g., a user who can both create purchase orders and approve payments). Supports warning-only, hard block, and block-with-override enforcement modes.",
+  "terraform_support": "partial",
+  "terraform_support_notes": "SoD policy shell via okta_policy. Rule documentation via okta_group. Toxic combination monitoring via okta_event_hook (requires custom endpoint). Actual SoD enforcement at request time, violation blocking, and override routing require the OIG Governance API (v2024.06+) or admin console.",
+  "risk_profile_effects": {
+    "standard": "SoD policies enabled in warn-only mode. Violations generate alerts but do not block access. No toxic combination detection. Advisory posture for initial SoD rollout.",
+    "elevated": "SoD violations blocked with override option. Toxic combination detection enabled. Critical conflicts blocked; overrides require app owner approval.",
+    "strict": "All SoD violations hard-blocked. No overrides. Toxic combination detection active. Zero tolerance for incompatible entitlements."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Controls SoD enforcement strictness and toxic combination detection.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "enable_sod_policies": {
+      "label": "Enable SoD Policies",
+      "client_description": "Enable separation of duties policy enforcement. When enabled, the system evaluates access requests against SoD rules before granting access.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "sod_violation_action": {
+      "label": "Violation Action",
+      "client_description": "How the system handles SoD violations. 'warn' shows a warning but allows the request to proceed (good for initial rollout). 'block_with_override' prevents the request but allows a senior approver to override. 'block' prevents the request with no override possible.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["warn", "block", "block_with_override"],
+      "profile_defaults": {
+        "standard": "warn",
+        "elevated": "block_with_override",
+        "strict": "block"
+      }
+    },
+    "enable_toxic_combination_detection": {
+      "label": "Enable Toxic Combination Detection",
+      "client_description": "Proactively scan for toxic combinations of entitlements across users. Goes beyond individual request-time checks to find existing violations that accumulated before SoD policies were in place. Essential for initial SoD deployment to find pre-existing conflicts.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "sod_rules": {
+      "label": "SoD Rules",
+      "client_description": "Define incompatible entitlement pairs. Each rule names two entitlements that a single user should not hold simultaneously. Common examples: 'Create Purchase Order' + 'Approve Purchase Order', 'Manage Users' + 'Manage Audit Logs', 'Deploy to Production' + 'Approve Production Deploy'.",
+      "type": "list(object)",
+      "default": [],
+      "required": false
+    }
+  },
+  "outputs": {
+    "sod_policy_id": "SoD enforcement policy ID. Null if disabled.",
+    "sod_policies_enabled": "Whether SoD enforcement is active.",
+    "effective_sod_violation_action": "Resolved violation action.",
+    "toxic_combination_detection_enabled": "Whether toxic combination detection is active.",
+    "sod_rule_group_ids": "Map of SoD rule names to documentation group IDs.",
+    "toxic_combination_hook_id": "Toxic combination monitor hook ID. Null if disabled."
+  }
+}

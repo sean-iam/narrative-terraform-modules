@@ -1,0 +1,73 @@
+{
+  "module": "apps",
+  "description": "Manages Google Workspace application configuration: pre-installed apps, SAML SSO applications, blocked third-party apps, and per-OU app access restrictions. SAML app details are documented as OUs and must be configured via the Admin Console.",
+  "risk_profile_effects": {
+    "standard": "No risk profile variation — app configuration is identical across profiles.",
+    "elevated": "No risk profile variation — app configuration is identical across profiles.",
+    "strict": "No risk profile variation — app configuration is identical across profiles."
+  },
+  "variables": {
+    "group_ids": {
+      "label": "Group IDs",
+      "client_description": "Map of group names to IDs from the groups module. Used for app assignment targeting.",
+      "type": "map(string)",
+      "default": null,
+      "required": true,
+      "internal": true
+    },
+    "pre_installed_apps": {
+      "label": "Pre-Installed Apps",
+      "client_description": "List of Google Workspace apps to pre-install for all users (e.g., 'Google Drive', 'Google Meet'). These are available in the app launcher by default.",
+      "type": "list(string)",
+      "default": [],
+      "required": false,
+      "examples": [["Google Drive", "Google Meet", "Google Chat", "Google Calendar"]]
+    },
+    "saml_apps": {
+      "label": "SAML Applications",
+      "client_description": "Third-party applications to configure for SAML SSO. Each app needs an ACS URL, Entity ID, and optional group assignments for access control.",
+      "type": "list(object({app_name=string, display_name=string, acs_url=string, entity_id=string, start_url=string, name_id=string, group_ids=list(string)}))",
+      "default": [],
+      "required": false,
+      "examples": [
+        [
+          {
+            "app_name": "slack",
+            "display_name": "Slack",
+            "acs_url": "https://acmecorp.slack.com/sso/saml",
+            "entity_id": "https://slack.com",
+            "start_url": "https://acmecorp.slack.com",
+            "name_id": "EMAIL",
+            "group_ids": []
+          }
+        ]
+      ]
+    },
+    "blocked_apps": {
+      "label": "Blocked Apps",
+      "client_description": "OAuth client IDs of third-party apps to block. These apps cannot access any user data in your organization.",
+      "type": "list(string)",
+      "default": [],
+      "required": false
+    },
+    "app_access_ou_restrictions": {
+      "label": "App Access OU Restrictions",
+      "client_description": "Map of app names to lists of OUs that can access them. Use to restrict specific apps to certain departments or teams.",
+      "type": "map(list(string))",
+      "default": {},
+      "required": false,
+      "examples": [
+        {
+          "GitHub": ["/Engineering"],
+          "Salesforce": ["/Sales", "/Customer Support"]
+        }
+      ]
+    }
+  },
+  "outputs": {
+    "app_management_ou_path": "OU path for app management policy documentation",
+    "saml_app_ou_paths": "Map of SAML app name to documentation OU path",
+    "saml_app_count": "Number of SAML apps configured",
+    "blocked_app_count": "Number of blocked OAuth app client IDs"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "module": "resource-catalog",
+  "description": "Configures the Okta Identity Governance self-service resource catalog. The catalog is the storefront where end users browse and request access to applications, resources, and entitlement bundles. Controls what users can see, what information is shown, and who owns each catalog item.",
+  "terraform_support": "partial",
+  "terraform_support_notes": "Catalog visibility groups and owner groups created via okta_group (fully supported). Catalog policy shell via okta_policy. Catalog item publishing, visibility rules, and description requirements require the OIG Governance API (v2024.06+) or admin console.",
+  "risk_profile_effects": {
+    "standard": "Catalog visible to all users. Item descriptions optional. Open browsing of available resources.",
+    "elevated": "Role-based catalog visibility. Descriptions required on all items. Users only see resources relevant to their role.",
+    "strict": "Department-based visibility. Descriptions required. Users only see resources for their department. Reduces exposure of sensitive resource names."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Controls catalog visibility and description requirements.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "enable_resource_catalog": {
+      "label": "Enable Resource Catalog",
+      "client_description": "Enable the self-service catalog where users browse and request access. When disabled, all access must be requested through IT or provisioned manually.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "catalog_visibility": {
+      "label": "Catalog Visibility",
+      "client_description": "Who can see catalog items. 'all_users' shows everything to everyone. 'role_based' limits visibility based on user roles. 'department_based' limits by department. Restricting visibility prevents users from discovering resources they shouldn't know about (security through obscurity as a defense layer).",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["all_users", "role_based", "department_based"],
+      "profile_defaults": {
+        "standard": "all_users",
+        "elevated": "role_based",
+        "strict": "department_based"
+      }
+    },
+    "require_descriptions": {
+      "label": "Require Item Descriptions",
+      "client_description": "Require every catalog item to have a description. Helps users understand what they're requesting and reduces unnecessary requests. Required for audit compliance at elevated and strict tiers.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "catalog_items": {
+      "label": "Catalog Items",
+      "client_description": "Define applications and resources to publish in the catalog. Each item can specify an Okta app ID, owner group, visibility scope, and whether it requires approval.",
+      "type": "list(object)",
+      "default": [],
+      "required": false
+    }
+  },
+  "outputs": {
+    "resource_catalog_policy_id": "Resource catalog policy ID. Null if catalog is disabled.",
+    "catalog_enabled": "Whether the catalog is enabled.",
+    "effective_catalog_visibility": "Resolved visibility mode.",
+    "catalog_viewers_group_id": "Viewer group ID. Null if visibility is all_users.",
+    "catalog_item_owner_group_ids": "Map of item names to owner group IDs."
+  }
+}

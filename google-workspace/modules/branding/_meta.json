@@ -1,0 +1,44 @@
+{
+  "module": "branding",
+  "description": "Documents Google Workspace branding configuration including custom logos, login page customization, and brand colors. Actual branding changes must be applied via the Admin Console — this module tracks the intended configuration as Terraform-managed OU metadata.",
+  "risk_profile_effects": {
+    "standard": "No risk profile variation — branding is identical across profiles.",
+    "elevated": "No risk profile variation — branding is identical across profiles.",
+    "strict": "No risk profile variation — branding is identical across profiles."
+  },
+  "variables": {
+    "primary_color": {
+      "label": "Primary Brand Color",
+      "client_description": "Your primary brand color in hex format (e.g., '#1a1a2e'). Used for login page and email template theming.",
+      "type": "string",
+      "default": "#1a1a2e",
+      "required": false
+    },
+    "secondary_color": {
+      "label": "Secondary Brand Color",
+      "client_description": "Your secondary/accent color in hex format. Used for links and interactive elements.",
+      "type": "string",
+      "default": "#38bdf8",
+      "required": false
+    },
+    "logo_url": {
+      "label": "Logo URL",
+      "client_description": "URL to your organization's logo image. This must be uploaded manually via the Admin Console — the URL is tracked here for documentation.",
+      "type": "string",
+      "default": null,
+      "required": false
+    },
+    "custom_login_page_enabled": {
+      "label": "Custom Login Page",
+      "client_description": "Whether to enable custom login page branding with your organization's colors and logo.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    }
+  },
+  "outputs": {
+    "branding_policy_ou_path": "OU path documenting the branding configuration",
+    "primary_color": "The configured primary brand color",
+    "secondary_color": "The configured secondary brand color"
+  }
+}

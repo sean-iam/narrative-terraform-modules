@@ -1,0 +1,110 @@
+{
+  "module": "certifications",
+  "description": "Configures Okta Identity Governance access certification campaigns. Certifications are periodic reviews where managers or application owners verify that users still need their access. Uncertified access can be flagged, escalated, or automatically revoked depending on risk profile.",
+  "terraform_support": "minimal",
+  "terraform_support_notes": "OIG certification campaigns are managed through the Governance API (POST /api/v1/governance/campaigns). The Terraform provider does not yet have dedicated certification resources. This module creates the ACCESS_POLICY shell and micro-certification event hooks. Campaign scheduling, reviewer assignment, and remediation actions require API calls or admin console configuration.",
+  "risk_profile_effects": {
+    "standard": "Quarterly campaigns. 14-day review window. Manager review. No auto-revoke — uncertified access is flagged for manual action.",
+    "elevated": "Monthly campaigns. 10-day review window. Manager review. Auto-revoke on failure. Micro-certifications on role changes.",
+    "strict": "Continuous certification. 7-day review window. Manager review with escalation. Auto-revoke on failure. Micro-certifications on all changes."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Controls certification frequency, review windows, and remediation behavior.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "certification_frequency": {
+      "label": "Certification Frequency",
+      "client_description": "How often access certification campaigns run. 'quarterly' is typical for SOC 2. 'monthly' is recommended for HIPAA and financial services. 'continuous' triggers reviews on every access change — best for FedRAMP and high-security environments. 'weekly' is available but creates significant reviewer fatigue.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["quarterly", "monthly", "weekly", "continuous"],
+      "profile_defaults": {
+        "standard": "quarterly",
+        "elevated": "monthly",
+        "strict": "continuous"
+      }
+    },
+    "certification_duration_days": {
+      "label": "Review Window (days)",
+      "client_description": "Number of days reviewers have to complete their certification decisions. After this window closes, uncertified items follow the remediation action (notify/flag/revoke). Shorter windows enforce faster response but increase reviewer burden.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 14,
+        "elevated": 10,
+        "strict": 7
+      }
+    },
+    "reviewer_type": {
+      "label": "Default Reviewer",
+      "client_description": "Who reviews certifications by default. 'manager' assigns to the user's direct manager. 'app_owner' assigns to the application owner. 'custom' allows specifying a custom reviewer group (requires additional configuration).",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["manager", "app_owner", "custom"],
+      "profile_defaults": {
+        "standard": "manager",
+        "elevated": "manager",
+        "strict": "manager"
+      }
+    },
+    "auto_revoke_on_failure": {
+      "label": "Auto-Revoke on Failure",
+      "client_description": "Automatically remove access when a certification is denied or the review window expires without action. When disabled, uncertified access is flagged but not removed — someone must manually handle it. Enable for strict compliance (SOX, FedRAMP) where standing uncertified access is a finding.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "enable_micro_certifications": {
+      "label": "Enable Micro-Certifications",
+      "client_description": "Trigger targeted certification reviews when users change roles, join new groups, or receive new application assignments. Instead of waiting for the next campaign, the manager is asked to certify the change immediately. Reduces the window of uncertified access.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "reminder_days_before_deadline": {
+      "label": "Reminder Days Before Deadline",
+      "client_description": "Send a reminder notification to reviewers this many days before the certification deadline. Helps ensure campaigns are completed on time.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 5,
+        "elevated": 3,
+        "strict": 2
+      }
+    }
+  },
+  "outputs": {
+    "certification_campaign_id": "Certification campaign policy ID.",
+    "effective_certification_frequency": "Resolved certification frequency.",
+    "effective_certification_duration_days": "Resolved review window in days.",
+    "effective_reviewer_type": "Resolved default reviewer type.",
+    "effective_auto_revoke": "Whether auto-revoke is enabled.",
+    "micro_certification_hook_id": "Micro-certification event hook ID. Null if disabled."
+  }
+}

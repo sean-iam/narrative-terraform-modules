@@ -1,0 +1,19 @@
+# =============================================================================
+# Example client configuration
+# Copy to terraform.tfvars and fill in client-specific values
+# =============================================================================
+
+# Provider — get these from the Google Admin Console
+gw_customer_id = "C01234abc"
+gw_admin_email = "admin@example.com"
+
+# Organization
+org_display_name = "Acme Corp"
+org_domain       = "acmecorp.com"
+
+# Risk Profile — standard, elevated, or strict
+risk_profile = "standard"
+
+# Override individual settings below (optional)
+# If not set, defaults come from the risk_profile above.
+# See _meta.json in each module for all available options.

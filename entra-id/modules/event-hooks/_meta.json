@@ -1,0 +1,66 @@
+{
+  "module": "event-hooks",
+  "description": "Configures Azure Monitor diagnostic settings to stream Entra ID audit and sign-in logs to Log Analytics and/or Storage Accounts. Equivalent to Okta event hooks — provides audit trail, security monitoring, and compliance log archival.",
+  "risk_profile_effects": {
+    "standard": "No log streaming enabled by default. Can be manually enabled.",
+    "elevated": "Audit log streaming enabled. Sign-in log streaming disabled (can be enabled manually).",
+    "strict": "Both audit and sign-in log streaming enabled. Full visibility into all directory and authentication events."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Controls which log streams are enabled by default.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "enable_audit_log_streaming": {
+      "label": "Enable Audit Log Streaming",
+      "client_description": "Stream Entra ID audit logs (directory changes, role assignments, policy modifications) to your monitoring destination. Essential for security monitoring and compliance. Leave blank to use your risk profile default.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "enable_sign_in_log_streaming": {
+      "label": "Enable Sign-In Log Streaming",
+      "client_description": "Stream Entra ID sign-in logs (all authentication events) to your monitoring destination. High volume — consider storage costs. Leave blank to use your risk profile default.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": true
+      }
+    },
+    "log_analytics_workspace_id": {
+      "label": "Log Analytics Workspace ID",
+      "client_description": "Azure Log Analytics workspace resource ID for log streaming. Enables KQL querying, alerting, and integration with Microsoft Sentinel. Required if either log stream is enabled.",
+      "type": "string",
+      "default": null,
+      "required": false
+    },
+    "storage_account_id": {
+      "label": "Storage Account ID",
+      "client_description": "Azure Storage Account resource ID for long-term log archival. Provides cost-effective retention for compliance. Audit logs retained 365 days, sign-in logs retained 90 days.",
+      "type": "string",
+      "default": null,
+      "required": false
+    }
+  },
+  "outputs": {
+    "audit_log_stream_id": "Diagnostic setting ID for audit log stream (null if not created)",
+    "sign_in_log_stream_id": "Diagnostic setting ID for sign-in log stream (null if not created)",
+    "audit_log_streaming_enabled": "Whether audit log streaming is active",
+    "sign_in_log_streaming_enabled": "Whether sign-in log streaming is active"
+  }
+}

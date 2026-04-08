@@ -1,0 +1,109 @@
+{
+  "module": "lifecycle-rules",
+  "description": "Configures Okta Identity Governance access duration policies, time-bound access grants, auto-expiration, and extension workflows. Eliminates standing access by ensuring all grants have a defined end date. Users can request extensions before expiration, subject to re-approval. Core defense against privilege accumulation.",
+  "terraform_support": "partial",
+  "terraform_support_notes": "Lifecycle policy shell via okta_policy. Expiration reminder event hook via okta_event_hook (fully supported but requires a custom endpoint). Duration enforcement, extension workflows, and expiration scheduling require the OIG Governance API (v2024.06+) or admin console.",
+  "risk_profile_effects": {
+    "standard": "90-day default access duration. 365-day maximum. 4 extensions allowed. 14-day expiration reminder.",
+    "elevated": "60-day default. 180-day maximum. 2 extensions allowed. 10-day reminder.",
+    "strict": "30-day default. 90-day maximum. 1 extension only. 7-day reminder. Forces frequent re-justification of access."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Controls default access duration, maximum limits, and extension allowances.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "default_access_duration_days": {
+      "label": "Default Access Duration (days)",
+      "client_description": "Default number of days access is granted for. Users can request shorter durations. After this period, access is revoked unless an extension is requested and approved. Shorter durations reduce standing privilege risk.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 90,
+        "elevated": 60,
+        "strict": 30
+      }
+    },
+    "max_access_duration_days": {
+      "label": "Maximum Access Duration (days)",
+      "client_description": "Absolute maximum days access can be granted, including extensions. No single grant can exceed this. Forces a full re-request and re-approval cycle after this point.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 365,
+        "elevated": 180,
+        "strict": 90
+      }
+    },
+    "enable_auto_expiration": {
+      "label": "Enable Auto-Expiration",
+      "client_description": "Automatically revoke access when the duration expires. Should always be enabled — disabling this defeats the purpose of time-bound access.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "enable_extension_workflow": {
+      "label": "Enable Extension Workflow",
+      "client_description": "Allow users to request an extension before their access expires. Extensions go through the approval workflow again. Without this, users must submit a new access request.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "extension_reminder_days": {
+      "label": "Extension Reminder (days before expiration)",
+      "client_description": "Send a reminder notification this many days before access expires. Gives users time to request an extension before losing access.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 14,
+        "elevated": 10,
+        "strict": 7
+      }
+    },
+    "max_extensions": {
+      "label": "Maximum Extensions",
+      "client_description": "Maximum number of extensions a user can request for a single access grant. After this limit, a new full access request is required. Prevents indefinite extension chains.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 4,
+        "elevated": 2,
+        "strict": 1
+      }
+    }
+  },
+  "outputs": {
+    "access_lifecycle_policy_id": "Access lifecycle policy ID.",
+    "effective_access_duration_days": "Resolved default access duration.",
+    "effective_max_access_duration_days": "Resolved maximum access duration.",
+    "auto_expiration_enabled": "Whether auto-expiration is enabled.",
+    "extension_workflow_enabled": "Whether extension workflows are enabled.",
+    "effective_max_extensions": "Resolved maximum extensions allowed.",
+    "expiration_reminder_hook_id": "Expiration reminder hook ID. Null if extensions disabled."
+  }
+}

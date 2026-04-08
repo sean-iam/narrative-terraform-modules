@@ -1,0 +1,97 @@
+{
+  "module": "groups",
+  "description": "Creates Google Workspace groups for admin roles, functional teams, departments, and custom purposes. Configures group settings (who can post, join, view) and provides group IDs for cross-module policy targeting.",
+  "risk_profile_effects": {
+    "standard": "All department groups enabled by default.",
+    "elevated": "All department groups enabled by default.",
+    "strict": "All department groups enabled by default."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your organization's security tier. Controls default behavior for department group creation. Most clients use 'standard'.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "org_display_name": {
+      "label": "Organization Display Name",
+      "client_description": "Your organization's display name. Used in group descriptions.",
+      "type": "string",
+      "default": null,
+      "required": true
+    },
+    "org_domain": {
+      "label": "Organization Domain",
+      "client_description": "Your primary domain (e.g., acmecorp.com). Used to construct group email addresses.",
+      "type": "string",
+      "default": null,
+      "required": true
+    },
+    "enable_department_groups": {
+      "label": "Enable Department Groups",
+      "client_description": "Whether to create department-based groups. When enabled, each department in your list gets its own Google Group with appropriate settings.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "departments": {
+      "label": "Department List",
+      "client_description": "The list of departments in your organization. Each department gets a Google Group (e.g., dept-engineering@acmecorp.com).",
+      "type": "list(string)",
+      "default": ["Engineering", "Finance", "Human Resources", "IT Operations", "Sales", "Customer Support", "Legal & Compliance"],
+      "required": false,
+      "examples": [
+        ["Engineering", "Product", "Design", "Sales", "Marketing", "Finance", "Legal", "HR", "IT"],
+        ["Technology", "Operations", "Commercial"]
+      ]
+    },
+    "enable_contractor_group": {
+      "label": "Enable Contractor Group",
+      "client_description": "Whether to create a 'Contractors' group. Enable this if your organization manages contractor identities in Google Workspace.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_executive_group": {
+      "label": "Enable Executive Leadership Group",
+      "client_description": "Whether to create an 'Executive Leadership' group for C-suite and VP-level users. This group is typically targeted by enhanced authentication policies.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "custom_groups": {
+      "label": "Custom Groups",
+      "client_description": "Any additional Google Groups your organization needs beyond the standard set. Provide a name and description for each.",
+      "type": "list(object({name=string, description=string}))",
+      "default": [],
+      "required": false,
+      "examples": [
+        [
+          { "name": "Project Alpha", "description": "Cross-functional team for Project Alpha initiative" },
+          { "name": "Remote Workers", "description": "Employees approved for permanent remote work" }
+        ]
+      ]
+    }
+  },
+  "outputs": {
+    "super_admins_id": "Group ID for the Super Admins group",
+    "all_employees_id": "Group ID for the All Employees group",
+    "contractors_id": "Group ID for the Contractors group (null if disabled)",
+    "break_glass_id": "Group ID for the Break Glass emergency access group",
+    "service_accounts_id": "Group ID for the Service Accounts group",
+    "privileged_access_id": "Group ID for the Privileged Access (JIT) group",
+    "executive_leadership_id": "Group ID for the Executive Leadership group (null if disabled)",
+    "department_group_ids": "Map of department name to Google Group ID",
+    "admin_group_ids": "Map of admin role name to Google Group ID",
+    "all_group_ids": "Combined map of all group names to Google Group IDs"
+  }
+}

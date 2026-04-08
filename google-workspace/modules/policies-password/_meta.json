@@ -1,0 +1,105 @@
+{
+  "module": "policies-password",
+  "description": "Configures tiered Google Workspace password policies via organizational units. Creates three OUs: Admin (strictest), Employee, and Service Account. Each OU documents the intended complexity, history, and rotation requirements scaled to the sensitivity of the account type.",
+  "risk_profile_effects": {
+    "standard": "12-character min for employees, 14-character min for admins. 90-day rotation for users, 60-day for admins. 8 previous passwords blocked.",
+    "elevated": "14-character min for employees, 16-character min for admins. 60-day rotation for users, 45-day for admins. 12 previous passwords blocked.",
+    "strict": "16-character min for employees, 18-character min for admins. 45-day rotation for users, 30-day for admins. 24 previous passwords blocked."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your organization's security tier. Controls default password complexity, rotation intervals, and reuse restrictions.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "password_min_length": {
+      "label": "Minimum Password Length (employees)",
+      "client_description": "Minimum password length for end users. NIST SP 800-63B recommends at least 8 characters; most compliance frameworks require 8-12. Longer is better.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 12,
+        "elevated": 14,
+        "strict": 16
+      }
+    },
+    "password_max_age_days": {
+      "label": "Password Rotation Interval (days)",
+      "client_description": "How often end users must change their password. Set to 0 to disable mandatory rotation. NIST recommends against mandatory rotation unless compromise is detected.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 90,
+        "elevated": 60,
+        "strict": 45
+      }
+    },
+    "password_reuse_count": {
+      "label": "Password Reuse Count",
+      "client_description": "Number of previous passwords a user cannot reuse. Prevents cycling through a small set of variations.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 8,
+        "elevated": 12,
+        "strict": 24
+      }
+    },
+    "password_enforce_strong": {
+      "label": "Enforce Strong Passwords",
+      "client_description": "Require passwords to include mixed case, numbers, and symbols. Enabled for all risk profiles by default.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "admin_password_min_length": {
+      "label": "Minimum Admin Password Length",
+      "client_description": "Minimum password length for admin accounts. Always higher than end-user minimum.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 14,
+        "elevated": 16,
+        "strict": 18
+      }
+    },
+    "admin_password_max_age_days": {
+      "label": "Admin Password Rotation Interval (days)",
+      "client_description": "How often admin accounts must rotate passwords. Shorter than end-user interval due to higher risk.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 60,
+        "elevated": 45,
+        "strict": 30
+      }
+    }
+  },
+  "outputs": {
+    "admin_policy_ou_path": "OU path for admin password policy scoping",
+    "employee_policy_ou_path": "OU path for employee password policy scoping",
+    "service_account_ou_path": "OU path for service account password policy scoping",
+    "effective_password_min_length": "The resolved minimum password length for employees",
+    "effective_admin_password_min_length": "The resolved minimum password length for admins"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "module": "network",
+  "description": "Creates Entra ID named locations for trusted IPs and geo-blocking. Named locations are referenced by Conditional Access policies to enforce network-based access controls, OFAC compliance, and high-risk country blocking.",
+  "risk_profile_effects": {
+    "standard": "Trusted IP location created. OFAC geo-blocking enabled. High-risk country blocking disabled.",
+    "elevated": "Trusted IP location created. OFAC geo-blocking enabled. High-risk country blocking enabled (RU, CN, BY, VE, MM).",
+    "strict": "Trusted IP location created. OFAC geo-blocking enabled. High-risk country blocking enabled. Allowlist geo mode available."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Controls whether high-risk country blocking is enabled and the geo-blocking mode.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "trusted_cidrs": {
+      "label": "Trusted IP CIDRs",
+      "client_description": "Your office and VPN IP address ranges in CIDR notation. Sign-ins from these networks are considered trusted and can be used to relax MFA requirements or restrict service account access.",
+      "type": "list(string)",
+      "default": [],
+      "required": false,
+      "examples": [["203.0.113.0/24", "198.51.100.0/24"]]
+    },
+    "ofac_countries": {
+      "label": "OFAC Sanctioned Countries",
+      "client_description": "ISO 3166-1 alpha-2 country codes for OFAC-sanctioned nations. Authentication from these countries is always blocked. Default: North Korea, Iran, Cuba, Syria.",
+      "type": "list(string)",
+      "default": ["KP", "IR", "CU", "SY"],
+      "required": false
+    },
+    "enable_high_risk_blocking": {
+      "label": "Enable High-Risk Country Blocking",
+      "client_description": "Block authentication from countries with elevated cyber threat profiles. Enabled by default for Elevated and Strict profiles.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "high_risk_countries": {
+      "label": "High-Risk Countries",
+      "client_description": "ISO 3166-1 alpha-2 codes for high-risk countries. Only used when high-risk blocking is enabled.",
+      "type": "list(string)",
+      "default": ["RU", "CN", "BY", "VE", "MM"],
+      "required": false
+    },
+    "geo_mode": {
+      "label": "Geo-Blocking Mode",
+      "client_description": "Controls how geographic restrictions work. 'blocklist' blocks specific countries. 'allowlist' only allows countries you explicitly approve (strict mode default).",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": "blocklist",
+        "elevated": "blocklist",
+        "strict": "allowlist"
+      }
+    },
+    "allowlist_countries": {
+      "label": "Allowlist Countries",
+      "client_description": "Countries to allow in allowlist (strict) mode. Only used when geo_mode is 'allowlist'. Include all countries where your employees and contractors work.",
+      "type": "list(string)",
+      "default": [],
+      "required": false
+    }
+  },
+  "outputs": {
+    "trusted_location_id": "Named location ID for trusted networks",
+    "ofac_location_id": "Named location ID for OFAC blocklist",
+    "high_risk_location_id": "Named location ID for high-risk country blocklist (null if disabled)"
+  }
+}

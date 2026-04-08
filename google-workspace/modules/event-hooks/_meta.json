@@ -1,0 +1,68 @@
+{
+  "module": "event-hooks",
+  "description": "Configures Google Workspace alert center rules, admin activity monitoring, and audit log export settings. Standard disables alerts, Elevated enables security alerts, Strict enables both security and admin activity alerts. Equivalent to Okta event hooks.",
+  "risk_profile_effects": {
+    "standard": "No alert rules enabled by default.",
+    "elevated": "Security alert rules enabled (if notification email provided). Admin activity alerts disabled.",
+    "strict": "Both security and admin activity alert rules enabled (if notification email provided)."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Standard disables all alerts, Elevated enables security monitoring, Strict enables both security and admin activity monitoring.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "enable_security_alerts": {
+      "label": "Enable Security Alerts",
+      "client_description": "Whether to enable security alert rules that monitor suspicious logins, device compromises, data exports, and phishing attempts.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "enable_admin_activity_alerts": {
+      "label": "Enable Admin Activity Alerts",
+      "client_description": "Whether to enable admin activity alert rules that monitor user/group creation, security setting changes, and delegation changes.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": true
+      }
+    },
+    "alert_notification_email": {
+      "label": "Alert Notification Email",
+      "client_description": "Email address where security and admin activity alerts will be sent. Can be a group email for distribution to the security team.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "examples": ["security-alerts@acmecorp.com", "soc-team@acmecorp.com"]
+    },
+    "audit_log_export_enabled": {
+      "label": "Audit Log Export",
+      "client_description": "Whether to enable audit log export to BigQuery or Cloud Storage for long-term retention and SIEM integration. Must be configured via Admin Console.",
+      "type": "bool",
+      "default": false,
+      "required": false
+    }
+  },
+  "outputs": {
+    "security_alerts_ou_path": "Security alerts OU path (null if not enabled)",
+    "admin_activity_alerts_ou_path": "Admin activity alerts OU path (null if not enabled)",
+    "security_alerts_enabled": "Whether security alert rules are active",
+    "admin_activity_alerts_enabled": "Whether admin activity alert rules are active",
+    "audit_log_export_enabled": "Whether audit log export is enabled"
+  }
+}

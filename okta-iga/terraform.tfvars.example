@@ -1,0 +1,30 @@
+# =============================================================================
+# Example client configuration — Okta Identity Governance (OIG)
+# Copy to terraform.tfvars and fill in client-specific values
+# =============================================================================
+
+# Provider — get these from the Okta admin console
+okta_org_name  = "your-org-name"
+okta_base_url  = "okta.com"
+# okta_api_token = ""  # Use environment variable TF_VAR_okta_api_token instead
+
+# Organization
+org_display_name = "Acme Corp"
+
+# Risk Profile — standard, elevated, or strict
+# Standard:  Quarterly certs, single-level approval, 90-day access, SoD warnings
+# Elevated:  Monthly certs, two-level approval, 60-day access, SoD blocks on critical
+# Strict:    Continuous certs, three-level approval, 30-day max, SoD blocks everywhere
+risk_profile = "standard"
+
+# Override individual settings below (optional)
+# If not set, defaults come from the risk_profile above.
+# See _meta.json in each module for all available options.
+
+# Examples:
+# certification_frequency        = "monthly"
+# approval_levels                = 2
+# default_access_duration_days   = 60
+# sod_violation_action           = "block"
+# enable_servicenow_integration  = true
+# servicenow_instance_url        = "https://acme.service-now.com"

@@ -1,0 +1,114 @@
+{
+  "module": "approval-workflows",
+  "description": "Configures multi-level approval chains for Okta Identity Governance access requests. Controls how many approval levels are required, how long approvers have to respond, what happens when they don't, and whether approval authority can be delegated. This is the core workflow engine that sits between an access request and provisioning.",
+  "terraform_support": "partial",
+  "terraform_support_notes": "Approver groups are created via okta_group (fully supported). Approval workflow policy shell created via okta_policy. Actual workflow routing, escalation rules, delegation configuration, and timeout actions require the OIG Governance API (v2024.06+) or admin console configuration.",
+  "risk_profile_effects": {
+    "standard": "Single-level approval (manager). 72-hour timeout. No escalation. Delegation enabled. Denied on timeout.",
+    "elevated": "Two-level approval (manager then app owner). 48-hour timeout. Auto-escalation to app owner. Delegation enabled. Denied on timeout.",
+    "strict": "Three-level approval (manager, app owner, governance admin). 24-hour timeout. Auto-escalation to governance admin. Delegation disabled (no delegation of accountability). Denied on timeout."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Controls the number of approval levels, timeout windows, and escalation behavior.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "approval_levels": {
+      "label": "Approval Levels",
+      "client_description": "How many approval levels are required before access is granted. 1: Manager approves. 2: Manager then application owner. 3: Manager, application owner, then governance admin. More levels increase security but slow down provisioning.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": [1, 2, 3],
+      "profile_defaults": {
+        "standard": 1,
+        "elevated": 2,
+        "strict": 3
+      }
+    },
+    "approval_timeout_hours": {
+      "label": "Approval Timeout (hours)",
+      "client_description": "Hours before a pending approval times out. After timeout, the request either escalates (if enabled) or follows the timeout action (deny/auto_approve). Shorter timeouts keep requests moving but may overwhelm approvers.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 72,
+        "elevated": 48,
+        "strict": 24
+      }
+    },
+    "enable_escalation": {
+      "label": "Enable Escalation",
+      "client_description": "Automatically escalate approvals when the primary approver does not respond within the timeout window. Escalation routes to the escalation target (manager's manager, app owner, or governance admin).",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "escalation_target": {
+      "label": "Escalation Target",
+      "client_description": "Who receives escalated approvals. 'manager_of_approver' routes to the approver's manager. 'app_owner' routes to the application owner. 'governance_admin' routes to the governance team.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["manager_of_approver", "app_owner", "governance_admin"],
+      "profile_defaults": {
+        "standard": "manager_of_approver",
+        "elevated": "app_owner",
+        "strict": "governance_admin"
+      }
+    },
+    "enable_delegation": {
+      "label": "Enable Delegation",
+      "client_description": "Allow approvers to delegate their approval authority to another person (e.g., during PTO). Disabled at strict tier because delegation of governance accountability creates audit risk.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": false
+      }
+    },
+    "timeout_action": {
+      "label": "Timeout Action",
+      "client_description": "What happens when an approval times out and escalation is disabled (or escalation also times out). 'deny' rejects the request. 'auto_approve' grants access automatically — only use this if your process requires it and you accept the risk.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["deny", "auto_approve"],
+      "profile_defaults": {
+        "standard": "deny",
+        "elevated": "deny",
+        "strict": "deny"
+      }
+    }
+  },
+  "outputs": {
+    "approval_workflow_policy_id": "Approval workflow policy ID.",
+    "effective_approval_levels": "Resolved number of approval levels.",
+    "effective_approval_timeout_hours": "Resolved timeout in hours.",
+    "approval_level_1_group_id": "Level 1 (manager) approver group ID.",
+    "approval_level_2_group_id": "Level 2 (app owner) approver group ID. Null if single-level.",
+    "approval_level_3_group_id": "Level 3 (governance admin) approver group ID. Null if less than three levels.",
+    "escalation_target_group_id": "Escalation target group ID. Null if escalation is disabled.",
+    "effective_escalation_enabled": "Whether escalation is enabled.",
+    "effective_delegation_enabled": "Whether delegation is enabled."
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "module": "access-requests",
+  "description": "Configures Okta Identity Governance access request workflows, self-service settings, and messaging integrations (Slack/Teams). Defines how end users request access to applications and resources, what information they must provide, and how requests flow through the organization.",
+  "terraform_support": "partial",
+  "terraform_support_notes": "Access request policy shell created via okta_policy (ACCESS_POLICY type). Request form fields, justification requirements, and duration limits require Okta Governance API v2024.06+ or manual configuration in the OIG admin console. Slack/Teams notifications use standard okta_event_hook resources and are fully supported.",
+  "risk_profile_effects": {
+    "standard": "Self-service enabled. No justification or ticket required. 90-day max request duration.",
+    "elevated": "Self-service enabled. Business justification required. 60-day max request duration.",
+    "strict": "Self-service enabled. Justification and ticket number required. 30-day max request duration."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Controls default request requirements. Higher tiers require more documentation from requesters.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "enable_self_service_requests": {
+      "label": "Enable Self-Service Requests",
+      "client_description": "Allow employees to request access to applications through the Okta dashboard. When disabled, all access must be provisioned by IT administrators.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "request_justification_required": {
+      "label": "Require Business Justification",
+      "client_description": "Require users to enter a business justification when requesting access. Creates an audit trail explaining why access was needed. Recommended for regulated environments.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "request_ticket_required": {
+      "label": "Require Ticket Number",
+      "client_description": "Require users to enter a ticket number (ServiceNow, Jira) when requesting access. Links access requests to change management records. Required for SOX and FedRAMP compliance.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": true
+      }
+    },
+    "max_request_duration_days": {
+      "label": "Maximum Request Duration (days)",
+      "client_description": "Maximum number of days a single access request can grant. After this period, access is revoked unless the user requests an extension. Shorter durations reduce standing privilege risk.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 90,
+        "elevated": 60,
+        "strict": 30
+      }
+    },
+    "enable_slack_requests": {
+      "label": "Enable Slack Notifications",
+      "client_description": "Send access request notifications to Slack. Requires a Slack incoming webhook URL.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": false
+      }
+    },
+    "enable_teams_requests": {
+      "label": "Enable Teams Notifications",
+      "client_description": "Send access request notifications to Microsoft Teams. Requires a Teams incoming webhook URL.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": false
+      }
+    },
+    "slack_webhook_url": {
+      "label": "Slack Webhook URL",
+      "client_description": "Slack incoming webhook URL for request notifications. Required if Slack notifications are enabled.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "examples": ["https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXX"]
+    },
+    "teams_webhook_url": {
+      "label": "Teams Webhook URL",
+      "client_description": "Microsoft Teams incoming webhook URL for request notifications. Required if Teams notifications are enabled.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "examples": ["https://outlook.office.com/webhook/XXXXXXXX"]
+    }
+  },
+  "outputs": {
+    "access_request_policy_id": "Access request configuration policy ID. Null if self-service is disabled.",
+    "self_service_enabled": "Whether self-service access requests are enabled.",
+    "effective_max_request_duration_days": "Resolved maximum request duration after applying risk profile defaults.",
+    "effective_justification_required": "Whether business justification is required after applying risk profile defaults.",
+    "effective_ticket_required": "Whether ticket number is required after applying risk profile defaults.",
+    "slack_hook_id": "Slack notification hook ID. Null if not created.",
+    "teams_hook_id": "Teams notification hook ID. Null if not created."
+  }
+}

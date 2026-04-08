@@ -1,0 +1,84 @@
+{
+  "module": "behaviors",
+  "description": "Creates Conditional Access policies that respond to Entra ID Identity Protection risk detections. Covers sign-in risk (impossible travel, anonymous IP, password spray) and user risk (leaked credentials, anomalous activity). Equivalent to Okta behaviors module.",
+  "risk_profile_effects": {
+    "standard": "Risk detection enabled but no enforcement (log only). Sign-in risk and user risk policies not created.",
+    "elevated": "Sign-in risk: require MFA at medium+ risk. User risk: require password change at medium+ risk.",
+    "strict": "Sign-in risk: block at low+ risk. User risk: require password change at low+ risk."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Controls how the system responds to detected identity risks.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "sign_in_risk_action": {
+      "label": "Sign-In Risk Action",
+      "client_description": "What happens when a risky sign-in is detected (impossible travel, anonymous IP, etc.). 'allow' — log only, no enforcement. 'mfa_required' — force MFA step-up. 'block' — deny sign-in entirely. Leave blank to use your risk profile default.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["allow", "mfa_required", "block"],
+      "profile_defaults": {
+        "standard": "allow",
+        "elevated": "mfa_required",
+        "strict": "block"
+      }
+    },
+    "user_risk_action": {
+      "label": "User Risk Action",
+      "client_description": "What happens when a user's account is flagged as risky (leaked credentials, anomalous activity). 'allow' — log only. 'password_change' — force password reset. 'block' — deny sign-in. Leave blank to use your risk profile default.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["allow", "password_change", "block"],
+      "profile_defaults": {
+        "standard": "allow",
+        "elevated": "password_change",
+        "strict": "password_change"
+      }
+    },
+    "sign_in_risk_level": {
+      "label": "Sign-In Risk Level Threshold",
+      "client_description": "Minimum risk level that triggers the sign-in risk action. 'low' catches more events (more false positives). 'high' only catches severe risks. Leave blank to use your risk profile default.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["low", "medium", "high"],
+      "profile_defaults": {
+        "standard": "high",
+        "elevated": "medium",
+        "strict": "low"
+      }
+    },
+    "user_risk_level": {
+      "label": "User Risk Level Threshold",
+      "client_description": "Minimum risk level that triggers the user risk action. 'low' catches more events. 'high' only catches severe risks. Leave blank to use your risk profile default.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["low", "medium", "high"],
+      "profile_defaults": {
+        "standard": "high",
+        "elevated": "medium",
+        "strict": "low"
+      }
+    }
+  },
+  "outputs": {
+    "sign_in_risk_policy_id": "Conditional Access policy ID for sign-in risk response (null if action is allow)",
+    "user_risk_policy_id": "Conditional Access policy ID for user risk response (null if action is allow)",
+    "effective_sign_in_risk_action": "Resolved action for sign-in risk events",
+    "effective_user_risk_action": "Resolved action for user risk events",
+    "effective_sign_in_risk_level": "Resolved minimum sign-in risk level threshold",
+    "effective_user_risk_level": "Resolved minimum user risk level threshold"
+  }
+}

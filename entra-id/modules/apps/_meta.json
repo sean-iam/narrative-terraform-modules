@@ -1,0 +1,80 @@
+{
+  "module": "apps",
+  "description": "Provisions enterprise applications in Entra ID: OIDC web apps (authorization_code flow), SAML SSO apps, service/M2M apps (client_credentials), and linked SSO portal links. Each app gets both an App Registration and Service Principal.",
+  "risk_profile_effects": {
+    "standard": "No risk profile variation — app provisioning is configuration-driven.",
+    "elevated": "No risk profile variation — app provisioning is configuration-driven.",
+    "strict": "No risk profile variation — app provisioning is configuration-driven."
+  },
+  "variables": {
+    "oidc_apps": {
+      "label": "OIDC Web Applications",
+      "client_description": "Web applications using OpenID Connect (authorization code flow) for authentication. Provide display name, redirect URIs (where Entra ID sends tokens after sign-in), and optionally a logout URL.",
+      "type": "list(object)",
+      "default": [],
+      "required": false,
+      "examples": [
+        [
+          {
+            "display_name": "Internal Dashboard",
+            "redirect_uris": ["https://dashboard.example.com/callback"],
+            "logout_url": "https://dashboard.example.com/logout"
+          }
+        ]
+      ]
+    },
+    "saml_apps": {
+      "label": "SAML Applications",
+      "client_description": "Enterprise applications using SAML for single sign-on. Provide display name, sign-on URL, identifier URIs (entity ID), and reply URLs (ACS endpoint).",
+      "type": "list(object)",
+      "default": [],
+      "required": false,
+      "examples": [
+        [
+          {
+            "display_name": "Salesforce",
+            "sign_on_url": "https://login.salesforce.com",
+            "identifier_uris": ["https://saml.salesforce.com"],
+            "reply_urls": ["https://login.salesforce.com?so=XXXXXXXX"]
+          }
+        ]
+      ]
+    },
+    "service_apps": {
+      "label": "Service / M2M Applications",
+      "client_description": "Machine-to-machine applications using client credentials (no user interaction). Used for API integrations, automation, and background services. A client secret is automatically generated.",
+      "type": "list(object)",
+      "default": [],
+      "required": false,
+      "examples": [
+        [
+          { "display_name": "HRIS Sync Agent" },
+          { "display_name": "Monitoring Webhook" }
+        ]
+      ]
+    },
+    "linked_sso_apps": {
+      "label": "Linked SSO Applications",
+      "client_description": "Portal links to external applications with their own authentication. Shows up in the My Apps portal as a bookmark. No Entra ID SSO — just a link.",
+      "type": "list(object)",
+      "default": [],
+      "required": false,
+      "examples": [
+        [
+          {
+            "display_name": "Company Wiki",
+            "login_url": "https://wiki.example.com"
+          }
+        ]
+      ]
+    }
+  },
+  "outputs": {
+    "oidc_app_ids": "Map of OIDC app name to application (client) ID",
+    "oidc_object_ids": "Map of OIDC app name to object ID",
+    "saml_app_ids": "Map of SAML app name to application (client) ID",
+    "saml_object_ids": "Map of SAML app name to object ID",
+    "service_app_ids": "Map of service app name to application (client) ID",
+    "service_app_secrets": "Map of service app name to client secret (sensitive)"
+  }
+}

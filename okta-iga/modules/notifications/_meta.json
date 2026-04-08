@@ -1,0 +1,90 @@
+{
+  "module": "notifications",
+  "description": "Configures Okta Identity Governance notification behavior including email notifications, digest summaries, escalation reminders, and custom templates. Controls how and when users, approvers, and administrators are notified about governance events like pending approvals, certification deadlines, and SoD violations.",
+  "terraform_support": "minimal",
+  "terraform_support_notes": "Notification policy shell via okta_policy. Escalation reminder via okta_event_hook (requires custom endpoint). Template customization, digest configuration, and per-event routing require the OIG Governance API (v2024.06+) or admin console.",
+  "risk_profile_effects": {
+    "standard": "Weekly digest summaries to reduce notification noise. 48-hour escalation reminders. Individual notifications only for critical events.",
+    "elevated": "Individual real-time notifications (no digest batching). 24-hour escalation reminders. Every governance event triggers immediate notification.",
+    "strict": "Individual real-time notifications. 12-hour escalation reminders. Fastest response expectations for all governance actions."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Controls notification delivery mode and escalation urgency.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "enable_email_notifications": {
+      "label": "Enable Email Notifications",
+      "client_description": "Send email notifications for governance events. Includes approval requests, certification reminders, SoD warnings, and access expiration notices. Should be enabled for all profiles.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "enable_digest_notifications": {
+      "label": "Enable Digest Mode",
+      "client_description": "Batch notifications into periodic digest summaries instead of sending individual emails for each event. Reduces inbox clutter but introduces delay. Disable for urgent governance environments where every notification needs immediate attention.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": false,
+        "strict": false
+      }
+    },
+    "digest_frequency": {
+      "label": "Digest Frequency",
+      "client_description": "How often digest summaries are sent. Only applies when digest mode is enabled. 'daily' sends a morning summary. 'weekly' sends a Monday morning summary.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["daily", "weekly"],
+      "profile_defaults": {
+        "standard": "weekly",
+        "elevated": "daily",
+        "strict": "daily"
+      }
+    },
+    "reminder_escalation_hours": {
+      "label": "Escalation Reminder (hours)",
+      "client_description": "Send an escalation reminder this many hours after a governance action is pending (e.g., unanswered approval request). Shorter windows create urgency but may annoy approvers. Longer windows give more time but risk delays.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 48,
+        "elevated": 24,
+        "strict": 12
+      }
+    },
+    "custom_notification_templates": {
+      "label": "Custom Notification Templates",
+      "client_description": "Override default notification email templates for specific event types. Useful for adding company branding, custom instructions, or compliance language to governance notifications.",
+      "type": "list(object)",
+      "default": [],
+      "required": false
+    }
+  },
+  "outputs": {
+    "notification_policy_id": "Notification configuration policy ID. Null if notifications disabled.",
+    "email_notifications_enabled": "Whether email notifications are enabled.",
+    "effective_digest_mode": "Whether digest mode is active.",
+    "effective_digest_frequency": "Resolved digest frequency.",
+    "effective_escalation_reminder_hours": "Resolved escalation reminder threshold.",
+    "escalation_reminder_hook_id": "Escalation reminder hook ID. Null if notifications disabled."
+  }
+}

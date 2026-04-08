@@ -1,0 +1,88 @@
+{
+  "module": "policies-login",
+  "description": "Configures Google Workspace session controls, login challenges, and re-authentication requirements. Creates organizational units for tiered session management: Admin (shortest), Employee, Contractor, and Break Glass sessions. Equivalent to Okta sign-on policies.",
+  "risk_profile_effects": {
+    "standard": "12-hour employee sessions, 8-hour admin sessions. Login challenges enabled. Re-auth for sensitive actions disabled.",
+    "elevated": "8-hour employee sessions, 4-hour admin sessions. Login challenges enabled. Re-auth for sensitive actions required.",
+    "strict": "4-hour employee sessions, 2-hour admin sessions. Login challenges enabled. Re-auth for sensitive actions required."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Controls default session durations and login challenge behavior.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "group_ids": {
+      "label": "Group IDs",
+      "client_description": "Map of group names to IDs from the groups module. Required for policy targeting.",
+      "type": "map(string)",
+      "default": null,
+      "required": true,
+      "internal": true
+    },
+    "session_duration_hours": {
+      "label": "Employee Session Duration (hours)",
+      "client_description": "How long an employee's web session lasts before re-authentication. Shorter sessions are more secure but less convenient.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 12,
+        "elevated": 8,
+        "strict": 4
+      }
+    },
+    "admin_session_duration_hours": {
+      "label": "Admin Session Duration (hours)",
+      "client_description": "How long an admin console session lasts. Always shorter than employee sessions due to elevated privileges.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 8,
+        "elevated": 4,
+        "strict": 2
+      }
+    },
+    "enable_login_challenge": {
+      "label": "Enable Login Challenges",
+      "client_description": "Whether to challenge users with additional verification when suspicious login activity is detected (new location, new device, etc.).",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "require_reauth_for_sensitive": {
+      "label": "Re-auth for Sensitive Actions",
+      "client_description": "Whether to require re-authentication when users access sensitive settings (security, app passwords, recovery options).",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    }
+  },
+  "outputs": {
+    "admin_session_ou_path": "OU path for admin session policy scoping",
+    "employee_session_ou_path": "OU path for employee session policy scoping",
+    "contractor_session_ou_path": "OU path for contractor session policy scoping",
+    "break_glass_session_ou_path": "OU path for break glass session policy scoping",
+    "effective_session_duration_hours": "The resolved employee session duration",
+    "effective_admin_session_duration_hours": "The resolved admin session duration"
+  }
+}

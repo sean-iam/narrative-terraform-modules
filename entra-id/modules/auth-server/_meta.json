@@ -1,0 +1,88 @@
+{
+  "module": "auth-server",
+  "description": "Creates an Entra ID app registration with custom OAuth2 scopes, a service principal, and token lifetime policies. Equivalent to Okta's custom authorization server. Manages the API surface for internal applications.",
+  "risk_profile_effects": {
+    "standard": "Access token: 60 min. ID token: 60 min. Refresh token: 30 days.",
+    "elevated": "Access token: 30 min. ID token: 30 min. Refresh token: 14 days.",
+    "strict": "Access token: 15 min. ID token: 15 min. Refresh token: 7 days."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Controls token lifetimes — shorter tokens mean more frequent re-authentication but less exposure if a token is stolen.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "app_registration_name": {
+      "label": "App Registration Name",
+      "client_description": "Display name for the API app registration in Entra ID. This is the central API that your internal applications will use for authentication and authorization.",
+      "type": "string",
+      "default": "Narrative API",
+      "required": false
+    },
+    "app_registration_description": {
+      "label": "App Registration Description",
+      "client_description": "Description for the app registration.",
+      "type": "string",
+      "default": "Custom API app registration",
+      "required": false
+    },
+    "api_scopes": {
+      "label": "API Scopes",
+      "client_description": "Custom OAuth2 scopes exposed by the API. Applications request these scopes to get appropriate access levels. Default: read, write, admin.",
+      "type": "list(string)",
+      "default": ["read", "write", "admin"],
+      "required": false
+    },
+    "access_token_lifetime_minutes": {
+      "label": "Access Token Lifetime (minutes)",
+      "client_description": "How long access tokens remain valid. Shorter = more secure but more frequent token refreshes. Leave blank to use your risk profile default.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 60,
+        "elevated": 30,
+        "strict": 15
+      }
+    },
+    "id_token_lifetime_minutes": {
+      "label": "ID Token Lifetime (minutes)",
+      "client_description": "How long ID tokens remain valid. Leave blank to use your risk profile default.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 60,
+        "elevated": 30,
+        "strict": 15
+      }
+    },
+    "refresh_token_lifetime_days": {
+      "label": "Refresh Token Lifetime (days)",
+      "client_description": "How long refresh tokens remain valid. After this period, users must fully re-authenticate. Leave blank to use your risk profile default.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 30,
+        "elevated": 14,
+        "strict": 7
+      }
+    }
+  },
+  "outputs": {
+    "app_registration_id": "Object ID for the app registration",
+    "app_registration_client_id": "Application (client) ID for the app registration — use this in application configs",
+    "service_principal_id": "Object ID for the service principal (enterprise app)",
+    "scope_ids": "Map of scope name to scope UUID",
+    "effective_access_token_lifetime_minutes": "Resolved access token lifetime",
+    "effective_refresh_token_lifetime_days": "Resolved refresh token lifetime"
+  }
+}

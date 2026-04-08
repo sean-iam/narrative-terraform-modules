@@ -1,0 +1,83 @@
+{
+  "module": "auth-server",
+  "description": "Manages OAuth app access, API client controls, and domain-wide delegation for Google Workspace. Standard allows third-party apps and open API access, Elevated restricts to admin-approved apps, Strict disables third-party access and locks down delegation.",
+  "risk_profile_effects": {
+    "standard": "Third-party apps allowed with user consent. Domain-wide delegation enabled. API access open.",
+    "elevated": "Third-party apps restricted to admin-approved only. Delegation enabled but audited. API access restricted.",
+    "strict": "No third-party app access. Domain-wide delegation disabled. API access locked to trusted clients only."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Controls third-party app access and API delegation settings.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "group_ids": {
+      "label": "Group IDs",
+      "client_description": "Map of group names to IDs from the groups module.",
+      "type": "map(string)",
+      "default": null,
+      "required": true,
+      "internal": true
+    },
+    "enable_third_party_apps": {
+      "label": "Allow Third-Party Apps",
+      "client_description": "Whether users can grant OAuth access to third-party applications. When disabled, only admin-approved apps (and trusted_apps) can access user data.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": false,
+        "strict": false
+      }
+    },
+    "enable_domain_wide_delegation": {
+      "label": "Allow Domain-Wide Delegation",
+      "client_description": "Whether service accounts can impersonate users via domain-wide delegation. Required for many integrations (HRIS sync, SIEM, backup) but represents significant security risk if misconfigured.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": false
+      }
+    },
+    "api_client_access": {
+      "label": "API Client Access Level",
+      "client_description": "Control how API clients access Google Workspace data. 'open' allows any authenticated client. 'restricted' limits to admin-approved scopes. 'locked' limits to explicitly trusted client IDs only.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["open", "restricted", "locked"],
+      "profile_defaults": {
+        "standard": "open",
+        "elevated": "restricted",
+        "strict": "locked"
+      }
+    },
+    "trusted_apps": {
+      "label": "Trusted App Client IDs",
+      "client_description": "OAuth client IDs that are always allowed regardless of third-party app restrictions. Use for critical integrations that must maintain access.",
+      "type": "list(string)",
+      "default": [],
+      "required": false
+    }
+  },
+  "outputs": {
+    "third_party_apps_ou_path": "OU path for third-party app access policy",
+    "delegation_policy_ou_path": "OU path for domain-wide delegation policy",
+    "api_access_policy_ou_path": "OU path for API client access policy",
+    "third_party_apps_enabled": "Whether third-party app access is enabled",
+    "domain_wide_delegation_enabled": "Whether domain-wide delegation is enabled",
+    "effective_api_client_access": "The resolved API client access level"
+  }
+}

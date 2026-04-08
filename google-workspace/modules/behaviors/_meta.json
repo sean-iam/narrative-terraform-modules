@@ -1,0 +1,66 @@
+{
+  "module": "behaviors",
+  "description": "Configures Google Workspace behavioral security controls: login challenges for suspicious activity, account recovery settings, and legacy app blocking. Standard allows self-service recovery, Elevated restricts to admin-only recovery, Strict requires admin identity verification.",
+  "risk_profile_effects": {
+    "standard": "Suspicious login challenges enabled. Self-service account recovery. Less secure apps allowed.",
+    "elevated": "Suspicious login challenges enabled. Admin-only account recovery. Less secure apps blocked.",
+    "strict": "Suspicious login challenges enabled. Admin-verified recovery only. Less secure apps blocked."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Controls login challenge aggressiveness and account recovery options.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "enable_suspicious_login_challenge": {
+      "label": "Enable Suspicious Login Challenges",
+      "client_description": "Whether Google challenges users with additional verification when suspicious login activity is detected. Enabled for all profiles by default.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "account_recovery_method": {
+      "label": "Account Recovery Method",
+      "client_description": "How users can recover their accounts. 'self_service' allows email/phone recovery. 'admin_only' requires IT helpdesk. 'admin_verification' requires IT plus identity verification.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["self_service", "admin_only", "admin_verification"],
+      "profile_defaults": {
+        "standard": "self_service",
+        "elevated": "admin_only",
+        "strict": "admin_verification"
+      }
+    },
+    "enable_less_secure_apps_block": {
+      "label": "Block Less Secure Apps",
+      "client_description": "Block access from apps that use legacy authentication protocols (IMAP, POP, basic SMTP) which cannot use 2SV. Recommended for all environments but may break legacy email clients.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    }
+  },
+  "outputs": {
+    "login_challenges_ou_path": "OU path for login challenge policy",
+    "account_recovery_ou_path": "OU path for account recovery policy",
+    "less_secure_apps_blocked": "Whether less secure apps are blocked",
+    "effective_recovery_method": "The resolved account recovery method"
+  }
+}

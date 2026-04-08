@@ -1,0 +1,118 @@
+{
+  "module": "policies-conditional",
+  "description": "Creates Entra ID Conditional Access policies for per-role MFA enforcement, session controls, legacy auth blocking, geo-blocking, and service account IP restriction. Equivalent to Okta sign-on policies.",
+  "risk_profile_effects": {
+    "standard": "24-hour employee sign-in frequency, 4-hour admin frequency, persistent browser allowed, legacy auth blocked, MFA for all users.",
+    "elevated": "12-hour employee sign-in frequency, 2-hour admin frequency, no persistent browser, legacy auth blocked, MFA for all users.",
+    "strict": "8-hour employee sign-in frequency, 1-hour admin frequency, no persistent browser, legacy auth blocked, MFA for all users."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Controls session timeouts, MFA enforcement, and browser persistence defaults.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "employee_sign_in_frequency_hours": {
+      "label": "Employee Sign-In Frequency (hours)",
+      "client_description": "How often employees must re-authenticate. Lower values are more secure but less convenient. Leave blank to use your risk profile default.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 24,
+        "elevated": 12,
+        "strict": 8
+      }
+    },
+    "admin_sign_in_frequency_hours": {
+      "label": "Admin Sign-In Frequency (hours)",
+      "client_description": "How often administrators must re-authenticate. Admins should re-authenticate more frequently than regular users. Leave blank to use your risk profile default.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 4,
+        "elevated": 2,
+        "strict": 1
+      }
+    },
+    "persistent_browser_session": {
+      "label": "Allow Persistent Browser Sessions",
+      "client_description": "Whether employees can keep their browser session after closing the browser. Disabled for Elevated and Strict profiles. Leave blank to use your risk profile default.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": false,
+        "strict": false
+      }
+    },
+    "require_mfa_for_admins": {
+      "label": "Require MFA for Admins",
+      "client_description": "Require MFA for all admin role assignments. Strongly recommended — leave enabled.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "require_mfa_for_all_users": {
+      "label": "Require MFA for All Users",
+      "client_description": "Require MFA for all users across the tenant. Strongly recommended — leave enabled.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "contractor_sign_in_frequency_hours": {
+      "label": "Contractor Sign-In Frequency (hours)",
+      "client_description": "How often contractors must re-authenticate. Contractors are typically given shorter sessions than employees due to third-party risk. Leave blank to use your risk profile default.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 8,
+        "elevated": 4,
+        "strict": 2
+      }
+    },
+    "block_legacy_auth": {
+      "label": "Block Legacy Authentication",
+      "client_description": "Block legacy authentication protocols (IMAP, POP3, SMTP basic auth). Legacy auth cannot enforce MFA and is the #1 attack vector for credential stuffing. Strongly recommended — leave enabled.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    }
+  },
+  "outputs": {
+    "block_legacy_auth_policy_id": "Conditional Access policy ID for blocking legacy authentication",
+    "admin_mfa_policy_id": "Conditional Access policy ID for admin MFA requirement",
+    "employee_mfa_policy_id": "Conditional Access policy ID for employee MFA requirement",
+    "block_ofac_policy_id": "Conditional Access policy ID for OFAC geo-blocking",
+    "block_high_risk_policy_id": "Conditional Access policy ID for high-risk country geo-blocking"
+  }
+}

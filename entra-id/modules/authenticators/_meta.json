@@ -1,0 +1,72 @@
+{
+  "module": "authenticators",
+  "description": "Configures MFA authentication methods via Entra ID authentication strength policies. Implements defense-in-depth: Standard uses Microsoft Authenticator push, Elevated adds number matching to block MFA fatigue attacks, Strict enforces FIDO2 hardware keys.",
+  "risk_profile_effects": {
+    "standard": "MFA method: Microsoft Authenticator push. FIDO2 disabled. SMS enabled.",
+    "elevated": "MFA method: Microsoft Authenticator number matching (prevents MFA fatigue). FIDO2 enabled. SMS disabled.",
+    "strict": "MFA method: FIDO2 hardware key (phishing-proof). FIDO2 required. SMS disabled."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Standard works for most companies. Elevated adds protections against MFA fatigue attacks (where hackers spam approval requests). Strict requires physical security keys — best for high-value targets like finance or executive teams.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "mfa_method": {
+      "label": "MFA Method",
+      "client_description": "Override the MFA method set by your risk profile. Options: 'microsoft_authenticator_push' — User taps 'Approve' on their phone. Convenient but can be vulnerable to MFA fatigue attacks. 'microsoft_authenticator_number' — User types a matching number from screen into their phone. Prevents MFA fatigue. 'fido2' — User taps a physical security key. Completely phishing-proof. Requires hardware keys (~$25-50 each) for all users. Leave blank to use your risk profile default.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["microsoft_authenticator_push", "microsoft_authenticator_number", "fido2"],
+      "profile_defaults": {
+        "standard": "microsoft_authenticator_push",
+        "elevated": "microsoft_authenticator_number",
+        "strict": "fido2"
+      }
+    },
+    "enable_fido2": {
+      "label": "Enable FIDO2 / Hardware Keys",
+      "client_description": "Enable FIDO2 hardware security key support. Required for Elevated and Strict profiles. Standard-only orgs can skip this. If enabled, users can register YubiKeys or other FIDO2 keys as a second factor.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "enable_email_otp": {
+      "label": "Enable Email OTP",
+      "client_description": "Allow email one-time passcode as an authentication method. Useful for guest/external users. Not recommended as primary MFA for internal users.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_phone_sms": {
+      "label": "Enable Phone SMS",
+      "client_description": "Allow SMS-based MFA. Convenient but vulnerable to SIM-swap attacks. Disabled by default for Elevated and Strict profiles.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": false,
+        "strict": false
+      }
+    }
+  },
+  "outputs": {
+    "auth_strength_policy_id": "Use this to reference the authentication strength policy in Conditional Access policies.",
+    "fido2_only_policy_id": "Use this to reference the FIDO2-only strength policy. Null if FIDO2 is disabled.",
+    "effective_mfa_method": "The actual MFA method in use after resolving risk profile defaults and any overrides."
+  }
+}

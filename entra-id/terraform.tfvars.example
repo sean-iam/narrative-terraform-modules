@@ -1,0 +1,20 @@
+# =============================================================================
+# Example client configuration
+# Copy to terraform.tfvars and fill in client-specific values
+# =============================================================================
+
+# Provider — get these from the Azure portal (App Registrations)
+tenant_id = "00000000-0000-0000-0000-000000000000"
+client_id = "00000000-0000-0000-0000-000000000000"
+# client_secret = ""  # Use environment variable TF_VAR_client_secret instead
+
+# Organization
+org_display_name = "Acme Corp"
+org_domain       = "acmecorp.com"
+
+# Risk Profile — standard, elevated, or strict
+risk_profile = "standard"
+
+# Override individual settings below (optional)
+# If not set, defaults come from the risk_profile above.
+# See _meta.json in each module for all available options.

@@ -1,0 +1,64 @@
+{
+  "module": "user-schema",
+  "description": "Creates a custom Google Workspace user schema with fields for identity lifecycle and governance. Fields include employee ID, manager email, start/end dates, office location, risk level, and last access review date. All fields are admin-readable and used for HR sync, lifecycle automation, and compliance tracking.",
+  "risk_profile_effects": {
+    "standard": "No risk profile variation — all fields are identical across profiles.",
+    "elevated": "No risk profile variation — all fields are identical across profiles.",
+    "strict": "No risk profile variation — all fields are identical across profiles."
+  },
+  "variables": {
+    "enable_employee_id": {
+      "label": "Enable Employee ID Field",
+      "client_description": "Add an 'Employee ID' custom field to user profiles. Used for cross-system correlation with HR and payroll systems.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_manager_email": {
+      "label": "Enable Manager Email Field",
+      "client_description": "Add a 'Manager Email' custom field to user profiles. Used for approval workflows and org hierarchy.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_start_date": {
+      "label": "Enable Start Date Field",
+      "client_description": "Add a 'Start Date' custom field to user profiles. Used for onboarding automation.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_end_date": {
+      "label": "Enable End Date Field",
+      "client_description": "Add an 'End Date' custom field to user profiles. Used for offboarding and deprovisioning automation.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_office_location": {
+      "label": "Enable Office Location Field",
+      "client_description": "Add an 'Office Location' custom field to user profiles. Used for location-based policies and reporting.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_risk_level": {
+      "label": "Enable Risk Level Field",
+      "client_description": "Add a 'Risk Level' custom field to user profiles. Used for adaptive access policies (low/medium/high/critical).",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_last_access_review_date": {
+      "label": "Enable Last Access Review Date Field",
+      "client_description": "Add a 'Last Access Review Date' custom field to user profiles. Used for compliance tracking and access certification reporting.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    }
+  },
+  "outputs": {
+    "schema_id": "The Google Workspace custom schema ID",
+    "schema_name": "The custom schema name (narrative_identity_governance)"
+  }
+}

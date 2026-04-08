@@ -1,0 +1,99 @@
+{
+  "module": "audit-reports",
+  "description": "Configures Okta Identity Governance reporting, scheduled compliance reports, and SIEM integration. Provides auditors with evidence of governance activities including access request decisions, certification results, and policy changes. Critical for SOC 2, SOX, HIPAA, and FedRAMP compliance.",
+  "terraform_support": "minimal",
+  "terraform_support_notes": "SIEM export uses okta_event_hook (fully supported). Report scheduling, recipient configuration, and compliance dashboard require the OIG Governance API (v2024.06+) or admin console. This module creates the policy shell and configures available event hooks.",
+  "risk_profile_effects": {
+    "standard": "No scheduled reports. No compliance dashboard. No SIEM export. Governance data available in Okta admin console.",
+    "elevated": "Monthly scheduled reports. Compliance dashboard enabled. No SIEM export. Reports sent to configured recipients.",
+    "strict": "Weekly scheduled reports. Compliance dashboard enabled. SIEM export of all governance events. Full audit trail for compliance."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Controls reporting frequency and export capabilities.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "enable_scheduled_reports": {
+      "label": "Enable Scheduled Reports",
+      "client_description": "Generate and email governance reports on a schedule. Reports include access request summaries, certification completion rates, SoD violations, and entitlement inventory changes.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "report_frequency": {
+      "label": "Report Frequency",
+      "client_description": "How often scheduled reports are generated and emailed. 'quarterly' aligns with SOC 2 audit cycles. 'monthly' for ongoing compliance visibility. 'weekly' for continuous monitoring environments.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["weekly", "monthly", "quarterly"],
+      "profile_defaults": {
+        "standard": "quarterly",
+        "elevated": "monthly",
+        "strict": "weekly"
+      }
+    },
+    "report_recipients": {
+      "label": "Report Recipients",
+      "client_description": "Email addresses to receive scheduled governance reports. Typically includes the CISO, compliance team, and internal audit.",
+      "type": "list(string)",
+      "default": [],
+      "required": false,
+      "examples": ["ciso@company.com", "compliance@company.com", "audit@company.com"]
+    },
+    "enable_compliance_dashboard": {
+      "label": "Enable Compliance Dashboard",
+      "client_description": "Enable the governance compliance dashboard showing real-time metrics for certification completion, open requests, SoD violations, and access expiration status.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "enable_siem_export": {
+      "label": "Enable SIEM Export",
+      "client_description": "Forward all governance events to a SIEM (Splunk, Datadog, Sentinel). Includes access decisions, certification results, policy changes, and membership modifications. Required for environments that centralize audit logs.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": true
+      }
+    },
+    "siem_endpoint": {
+      "label": "SIEM Endpoint URL",
+      "client_description": "HTTPS endpoint for SIEM event export. Required if SIEM export is enabled.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "examples": ["https://siem.example.com/api/okta-governance"]
+    }
+  },
+  "outputs": {
+    "governance_audit_policy_id": "Governance audit policy ID.",
+    "effective_report_frequency": "Resolved report frequency.",
+    "scheduled_reports_enabled": "Whether scheduled reports are enabled.",
+    "compliance_dashboard_enabled": "Whether the compliance dashboard is enabled.",
+    "siem_export_hook_id": "SIEM export hook ID. Null if not created.",
+    "siem_export_enabled": "Whether SIEM export is active."
+  }
+}

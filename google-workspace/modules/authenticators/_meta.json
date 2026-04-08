@@ -1,0 +1,81 @@
+{
+  "module": "authenticators",
+  "description": "Configures 2-Step Verification enforcement and allowed methods based on risk profile. Creates organizational units for security policy scoping. Standard uses optional 2SV with Google Prompt, Elevated enforces 2SV with security keys or Prompt, Strict requires FIDO2 hardware keys only.",
+  "risk_profile_effects": {
+    "standard": "2SV optional. All methods allowed (Google Prompt, TOTP, security keys). 14-day grace period.",
+    "elevated": "2SV enforced. Security keys or Google Prompt with number matching. 7-day grace period.",
+    "strict": "2SV enforced, security keys only. FIDO2 hardware keys required. 3-day grace period."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Your security tier. Standard works for most companies. Elevated enforces 2SV with strong methods. Strict requires physical security keys for all users.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "two_sv_enforcement": {
+      "label": "2SV Enforcement Level",
+      "client_description": "Override the 2-Step Verification enforcement set by your risk profile. Options: 'optional' — users choose whether to enable 2SV. 'enforced' — all users must enable 2SV. 'enforced_keys_only' — all users must use security keys. Leave blank to use your risk profile default.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["optional", "enforced", "enforced_keys_only"],
+      "profile_defaults": {
+        "standard": "optional",
+        "elevated": "enforced",
+        "strict": "enforced_keys_only"
+      }
+    },
+    "allowed_two_sv_methods": {
+      "label": "Allowed 2SV Methods",
+      "client_description": "Which 2SV methods users can register. 'any' allows all methods including SMS and TOTP. 'prompt_and_keys' allows Google Prompt and security keys. 'security_keys_only' requires FIDO2 hardware keys.",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "allowed_values": ["any", "prompt_and_keys", "security_keys_only"],
+      "profile_defaults": {
+        "standard": "any",
+        "elevated": "prompt_and_keys",
+        "strict": "security_keys_only"
+      }
+    },
+    "two_sv_grace_period_days": {
+      "label": "2SV Grace Period (days)",
+      "client_description": "How many days new users have to set up 2SV before enforcement kicks in. Shorter grace periods are more secure but may create onboarding friction.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 14,
+        "elevated": 7,
+        "strict": 3
+      }
+    },
+    "enable_security_keys_only": {
+      "label": "Security Keys Only",
+      "client_description": "Restrict 2SV to hardware security keys only. Disables phone-based methods. Requires hardware keys (~$25-50 each) for all users.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": false,
+        "strict": true
+      }
+    }
+  },
+  "outputs": {
+    "security_enforcement_ou_path": "Organizational unit path for security enforcement scoping",
+    "effective_two_sv_enforcement": "The resolved 2SV enforcement level",
+    "effective_two_sv_method": "The resolved allowed 2SV methods",
+    "effective_grace_period_days": "The resolved 2SV enrollment grace period",
+    "security_keys_only": "Whether only security keys are allowed"
+  }
+}

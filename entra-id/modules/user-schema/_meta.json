@@ -1,0 +1,64 @@
+{
+  "module": "user-schema",
+  "description": "Creates directory extension attributes for custom user properties in Entra ID. Uses an app registration to host extension properties, which is the standard approach for custom attributes that need to be available across the directory. Equivalent to Okta custom profile attributes.",
+  "risk_profile_effects": {
+    "standard": "No risk profile variation — attributes are structural, not security-sensitive.",
+    "elevated": "No risk profile variation — attributes are structural, not security-sensitive.",
+    "strict": "No risk profile variation — attributes are structural, not security-sensitive."
+  },
+  "variables": {
+    "enable_employee_id": {
+      "label": "Enable Employee ID",
+      "client_description": "Create a custom employee_id attribute on user objects. Used for cross-system correlation with your HR system.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_manager_email": {
+      "label": "Enable Manager Email",
+      "client_description": "Create a custom manager_email attribute. Used for manager-based approval workflows and org hierarchy reporting.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_start_date": {
+      "label": "Enable Start Date",
+      "client_description": "Create a custom start_date attribute. Used for onboarding automation — provisioning access before day one.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_end_date": {
+      "label": "Enable End Date",
+      "client_description": "Create a custom end_date attribute. Used for offboarding automation — scheduling deprovisioning on last day.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_office_location": {
+      "label": "Enable Office Location",
+      "client_description": "Create a custom office_location attribute. Used for location-based policies and compliance reporting.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_risk_level": {
+      "label": "Enable Risk Level",
+      "client_description": "Create a custom risk_level attribute (low/medium/high/critical). Used to drive adaptive access policies based on user-level risk classification.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    },
+    "enable_last_access_review_date": {
+      "label": "Enable Last Access Review Date",
+      "client_description": "Create a custom last_access_review_date attribute. Used for compliance reporting — tracks when each user's access was last formally reviewed.",
+      "type": "bool",
+      "default": true,
+      "required": false
+    }
+  },
+  "outputs": {
+    "extensions_app_id": "Object ID of the app registration hosting directory extensions",
+    "enabled_attributes": "Map of attribute names to their enabled status"
+  }
+}

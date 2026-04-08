@@ -1,0 +1,74 @@
+{
+  "module": "entitlements",
+  "description": "Manages Okta Identity Governance entitlement discovery, catalogs, and role-based bundles. Entitlements are the fine-grained permissions within applications (e.g., Salesforce roles, AWS IAM policies, GitHub team memberships). This module controls how entitlements are discovered, organized, and made available for access requests and certifications.",
+  "terraform_support": "minimal",
+  "terraform_support_notes": "Entitlement discovery and sync configuration require the OIG Governance API (v2024.06+). This module models entitlement bundles as Okta groups (fully supported) and creates an ACCESS_POLICY shell for entitlement management settings. Discovery configuration, sync intervals, and entitlement-to-application mapping require API calls or admin console setup.",
+  "risk_profile_effects": {
+    "standard": "Entitlement discovery enabled with 24-hour sync. Bundles disabled by default (flat entitlement list).",
+    "elevated": "12-hour sync interval. Entitlement bundles enabled for role-based access modeling.",
+    "strict": "6-hour sync interval. Bundles enabled. All entitlements must be cataloged before they can be assigned."
+  },
+  "variables": {
+    "risk_profile": {
+      "label": "Risk Profile",
+      "client_description": "Controls entitlement sync frequency and whether role-based bundles are enabled.",
+      "type": "string",
+      "default": "standard",
+      "required": false,
+      "allowed_values": ["standard", "elevated", "strict"],
+      "internal": true
+    },
+    "enable_entitlement_discovery": {
+      "label": "Enable Entitlement Discovery",
+      "client_description": "Automatically discover entitlements (roles, permissions, groups) from connected applications. Required for OIG to know what access exists in your environment.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": true,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "entitlement_sync_interval_hours": {
+      "label": "Sync Interval (hours)",
+      "client_description": "How often OIG re-syncs entitlements from connected applications. Shorter intervals catch permission changes faster but increase API load. 24 hours is fine for most orgs. 6 hours recommended for environments with frequent permission changes.",
+      "type": "number",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": 24,
+        "elevated": 12,
+        "strict": 6
+      }
+    },
+    "enable_entitlement_bundles": {
+      "label": "Enable Entitlement Bundles",
+      "client_description": "Group individual entitlements into role-based bundles. For example, a 'Sales Engineer' bundle might include Salesforce CRM access, Slack channels, and GitHub repo access. Users request the bundle instead of individual entitlements.",
+      "type": "bool",
+      "default": null,
+      "required": false,
+      "resolved_by": "risk_profile",
+      "profile_defaults": {
+        "standard": false,
+        "elevated": true,
+        "strict": true
+      }
+    },
+    "entitlement_bundles": {
+      "label": "Entitlement Bundles",
+      "client_description": "Define role-based bundles mapping a role name to a set of entitlements. Each bundle becomes a requestable item in the access request catalog.",
+      "type": "list(object)",
+      "default": [],
+      "required": false
+    }
+  },
+  "outputs": {
+    "entitlement_policy_id": "Entitlement management policy ID. Null if discovery is disabled.",
+    "entitlement_bundle_group_ids": "Map of bundle names to their Okta group IDs.",
+    "effective_sync_interval_hours": "Resolved sync interval in hours.",
+    "bundles_enabled": "Whether entitlement bundles are enabled."
+  }
+}
